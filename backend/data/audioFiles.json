@@ -1,0 +1,28 @@
+[
+    { "id": 1, "file": "/audio/1.mp3" },
+    { "id": 2, "file": "/audio/2.mp3" },
+    { "id": 3, "file": "/audio/3.mp3" },
+    { "id": 4, "file": "/audio/4.mp3" },
+    { "id": 5, "file": "/audio/5.mp3" },
+    { "id": 6, "file": "/audio/6.mp3" },
+    { "id": 7, "file": "/audio/7.mp3" },
+    { "id": 8, "file": "/audio/8.mp3" },
+    { "id": 9, "file": "/audio/9.mp3" },
+    { "id": 10, "file": "/audio/10.mp3" },
+    { "id": 11, "file": "/audio/11.mp3" },
+    { "id": 12, "file": "/audio/100.mp3" },
+    { "id": 13, "file": "/audio/puluh.mp3" },
+    { "id": 14, "file": "/audio/belas.mp3" },
+    { "id": 15, "file": "/audio/ratus.mp3" },
+    { "id": 16, "file": "/audio/A.mp3" },
+    { "id": 17, "file": "/audio/B.mp3" },
+    { "id": 18, "file": "/audio/C.mp3" },
+    { "id": 19, "file": "/audio/D.mp3" },
+    { "id": 20, "file": "/audio/loket1.mp3" },
+    { "id": 21, "file": "/audio/loket2.mp3" },
+    { "id": 22, "file": "/audio/no_antrian.mp3" },
+    { "id": 23, "file": "/audio/non_racikan.mp3" },
+    { "id": 24, "file": "/audio/racikan.mp3" },
+    { "id": 25, "file": "/audio/bell.mp3" }
+  ]
+  

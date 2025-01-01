@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const antrianRoutes = require("./routes/antrianRoutes");
 const cron = require("node-cron");
 const db = require("./config/mysqlDB");
 require("dotenv").config();
@@ -9,8 +8,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const antrianRoutes = require("./routes/antrianRoutes");
+const audioRoutes = require("./routes/audioRoutes");
+
 // Gunakan routes
 app.use("/api/antrian", antrianRoutes);
+app.use("/api/audio", audioRoutes);
 
 // Reset nomor antrian setiap jam 12 malam WITA
 cron.schedule("0 0 * * *", () => {
