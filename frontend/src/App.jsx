@@ -1,29 +1,23 @@
-import { useState } from 'react'
-import audioData from './data/audioData.json'
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AudioProvider } from './context/AudioContext';
+import { AntrianProvider} from './context/AntrianContext';
+import PageCall from './pages/PageCall';
+import PagePrint from './pages/PagePrint';
 
 const App = () => {
-  const [currentAudio, setCurrentAudio] = useState(null);
-
-  const handlePlayAudio = (audioId) => {
-    setCurrentAudio(audioId);
-    const audio = new Audio(audioId);
-    audio.play();
-  };
-
   return (
-    <>
-      <h1>Audio Player</h1>
-      <ul>
-        {audioData.map((audio) => (
-          <li key={audio.id}>
-            <button onClick={() => handlePlayAudio(audio.file)}>
-              Play {audio.title}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </>
-  )
-}
+      <AntrianProvider>
+    <AudioProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<PageCall />} />
+          <Route path="/print" element={<PagePrint />} />
+        </Routes>
+      </Router>
+    </AudioProvider>
+      </AntrianProvider>
+  );
+};
 
-export default App
+export default App;

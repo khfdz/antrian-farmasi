@@ -1,4 +1,4 @@
-const audioFiles = require('../data/audioFiles.json');
+const audioFiles = require('../data/dataAudio.json');
 
 // Generate audio sequence for the call
 function generateAudioSequence(params) {
