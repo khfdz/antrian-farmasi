@@ -1,4 +1,4 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +39,34 @@
 
 .read-the-docs {
   color: #888;
+} */
+
+@media print {
+  /* Sembunyikan semua elemen selain yang ingin dicetak */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Tampilkan hanya #jadi-section */
+  #jadi-section, #jadi-section * {
+    visibility: visible;
+  }
+
+  button {
+    display: none;
+  }
+
+  /* Posisikan #jadi-section di tengah halaman cetak */
+  #jadi-section {
+    position: absolute;
+    top: 50%;  /* Posisikan dari atas 50% */
+    left: 50%; /* Posisikan dari kiri 50% */
+    transform: translate(-50%, -50%); /* Geser elemen ke tengah-tengah halaman */
+  }
+
+  /* Mengatur margin dan padding kertas agar tidak ada ruang yang terbuang */
+  @page {
+    margin: 0;
+    size: A4; /* Ukuran kertas A4 */
+  }
 }

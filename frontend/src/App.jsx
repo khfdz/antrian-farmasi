@@ -1,9 +1,9 @@
-import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AudioProvider } from './context/AudioContext';
 import { AntrianProvider} from './context/AntrianContext';
 import PageCall from './pages/PageCall';
 import PagePrint from './pages/PagePrint';
+import './App.css';
 
 const App = () => {
   return (

@@ -6,12 +6,24 @@ const {
     getAllAntrianBpjsObatRacikanByStatus,
     ubahStatusAntrianBpjsObatRacikan,
 
-    tambahAntrianBPJSObatJadi,
-    getAllAntrianBPJSObatJadi,
+    tambahAntrianBpjsObatJadi,
+    getAllAntrianBpjsObatJadi,
+    getAntrianObatBpjsObatJadiLatest,
+    getAllAntrianBpjsObatJadiByStatus,
+    ubahStatusAntrianBpjsObatJadi,
+    
     tambahAntrianObatJadi,
     getAllAntrianObatJadi,
+    getAntrianObatJadiLatest,
+    getAllAntrianObatJadiByStatus,
+    ubahStatusAntrianObatJadi,
+
     tambahAntrianObatRacikan,
-    getAllAntrianObatRacikan
+    getAllAntrianObatRacikan,
+    getAntrianObatRacikanLatest,
+    getAllAntrianObatRacikanByStatus,
+    ubahStatusAntrianObatRacikan
+
  } = require("../controllers/antrianController");
 
 const router = express.Router();
@@ -23,15 +35,23 @@ router.get("/bpjs/obat-racikan/:status", getAllAntrianBpjsObatRacikanByStatus);
 router.patch("/bpjs/obat-racikan/:id/status", ubahStatusAntrianBpjsObatRacikan);
 
 
-router.post("/bpjs/obat-jadi", tambahAntrianBPJSObatJadi);   
-router.get("/bpjs/obat-jadi", getAllAntrianBPJSObatJadi);
+router.post("/bpjs/obat-jadi", tambahAntrianBpjsObatJadi);   
+router.get("/bpjs/obat-jadi", getAllAntrianBpjsObatJadi);
+router.get("/bpjs/obat-jadi/latest", getAntrianObatBpjsObatJadiLatest);
+router.get("/bpjs/obat-jadi/:status", getAllAntrianBpjsObatJadiByStatus);
+router.patch("/bpjs/obat-jadi/:id/status", ubahStatusAntrianBpjsObatJadi);
 
 router.post("/obat-jadi", tambahAntrianObatJadi);   
 router.get("/obat-jadi", getAllAntrianObatJadi);
+router.get("/obat-jadi/latest", getAntrianObatJadiLatest);
+router.get("/obat-jadi/:status", getAllAntrianObatJadiByStatus);
+router.patch("/obat-jadi/:id/status", ubahStatusAntrianObatJadi);
 
 router.post("/obat-racikan", tambahAntrianObatRacikan);   
 router.get("/obat-racikan", getAllAntrianObatRacikan);
-
+router.get("/obat-racikan/latest", getAntrianObatRacikanLatest);
+router.get("/obat-racikan/:status", getAllAntrianObatRacikanByStatus);
+router.patch("/obat-racikan/:id/status", ubahStatusAntrianObatRacikan);
 
 
 module.exports = router;

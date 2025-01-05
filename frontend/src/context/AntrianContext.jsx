@@ -1,83 +1,133 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import axios from 'axios';
+import { createContext, useState, useCallback } from 'react';
+import propTypes from 'prop-types';
+import {
+  fetchLastAntrianBpjsObatRacikanService,
+  fetchAntrianBpjsObatRacikanByStatusService,
+  fetchAndPrintAntrianBpjsObatRacikanService,
 
-const AntrianContext = createContext();
+  fetchLastAntrianBpjsObatJadiService,
+  fetchAntrianBpjsObatJadiByStatusService,
+  fetchAndPrintAntrianBpjsObatJadiService
+
+
+} from '../services/AntrianServices';
+
+export const AntrianContext = createContext();
 
 export const AntrianProvider = ({ children }) => {
-  const [antrian, setAntrian] = useState(null);
-  const [antrianBpjsRacikan, setAntrianBpjsRacikan] = useState(null);
+  const [antrianBpjsObatRacikan, setAntrianBpjsObatRacikan] = useState(null);
+  const [antrianListBpjsObatRacikan, setAntrianListBpjsObatRacikan] = useState(null);
+
+  const [antrianBpjsObatJadi, setAntrianBpjsObatJadi] = useState(null);
+  const [antrianListBpjsObatJadi, setAntrianListBpjsObatJadi] = useState(null);
+
   const [isLoading, setIsLoading] = useState(false);
 
-  // Ambil antrian terakhir dari backend
-  const fetchLastAntrian = useCallback(async () => {
+//-----------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//
+  const fetchLastAntrianBpjsObatRacikan = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/antrian/bpjs/obat-racikan/latest');
-      if (response.data && response.data.no_antrian) {
-        setAntrian(response.data);
-      } else {
-        console.error('No antrian found in response');
-      }
+      const data = await fetchLastAntrianBpjsObatRacikanService();
+      setAntrianBpjsObatRacikan(data);
     } catch (error) {
-      console.error('Error fetching last antrian:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []); // Tidak memiliki dependensi sehingga hanya dibuat sekali
-
-  const fetchAntrianBpjsRacikanByStatus = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`http://localhost:5000/api/antrian/bpjs/obat-racikan/0`);
-      if (response.data) {
-        setAntrianBpjsRacikan(response.data);
-      } else {
-        console.error('No antrian found in response');
-      }
-    } catch (error) {
-      console.error('Error fetching last antrian:', error);
+      console.error('Error fetching last antrian BPJS Obat Racikan:', error);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Ambil antrian baru dari backend dan cetak tiket
-  const fetchAndPrintAntrian = useCallback(async () => {
+  const fetchAntrianBpjsObatRacikanByStatus = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/antrian/bpjs/obat-racikan');
-      if (response.data.no_antrian) {
-        setAntrian(response.data);
-
-        // Tunggu hingga data diperbarui sebelum mencetak
-        setTimeout(() => {
-          window.print();
-        }, 500);
-      } else {
-        console.error('Failed to fetch antrian');
-      }
+      const data = await fetchAntrianBpjsObatRacikanByStatusService();
+      setAntrianListBpjsObatRacikan(data);
     } catch (error) {
-      console.error('Error fetching antrian:', error);
+      console.error('Error fetching antrian BPJS Obat Racikan by status:', error);
     } finally {
       setIsLoading(false);
     }
   }, []);
-  
+
+  const fetchAndPrintAntrianBpjsObatRacikan = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchAndPrintAntrianBpjsObatRacikanService();
+      setAntrianBpjsObatRacikan(data);
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching and printing antrian BPJS Obat Racikan:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+//-----------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//
+
+//-----------------------------------------------ANTRIAN BPJS OBAT JADI---------------------------------------//
+  const fetchLastAntrianBpjsObatJadi = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLastAntrianBpjsObatJadiService();
+      setAntrianBpjsObatJadi(data);
+    } catch (error) {
+      console.error('Error fetching last antrian BPJS Obat Jadi:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchAntrianBpjsObatJadiByStatus = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchAntrianBpjsObatJadiByStatusService();
+      setAntrianListBpjsObatJadi(data);
+    } catch (error) {
+      console.error('Error fetching antrian BPJS Obat Jadi by status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchAndPrintAntrianBpjsObatJadi = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchAndPrintAntrianBpjsObatJadiService();
+      setAntrianBpjsObatJadi(data);
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching and printing antrian BPJS Obat Jadi:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+//-----------------------------------------------ANTRIAN BPJS OBAT JADI---------------------------------------//
 
   return (
-    <AntrianContext.Provider value={{ 
-      antrian, 
-      fetchLastAntrian,
-       
-      isLoading, 
-      
-      fetchAndPrintAntrian,
-      antrianBpjsRacikan,
-      fetchAntrianBpjsRacikanByStatus
-       }}>
+    <AntrianContext.Provider
+      value={{
+        antrianBpjsObatRacikan,
+        antrianListBpjsObatRacikan,
+        fetchLastAntrianBpjsObatRacikan,
+        fetchAntrianBpjsObatRacikanByStatus,
+        fetchAndPrintAntrianBpjsObatRacikan,
+
+        antrianBpjsObatJadi,
+        antrianListBpjsObatJadi,
+        fetchLastAntrianBpjsObatJadi,
+        fetchAntrianBpjsObatJadiByStatus,
+        fetchAndPrintAntrianBpjsObatJadi,
+
+        isLoading,
+      }}
+    >
       {children}
     </AntrianContext.Provider>
   );
 };
 
-export const useAntrian = () => useContext(AntrianContext);
+AntrianProvider.propTypes = {
+  children: propTypes.node.isRequired,
+};
