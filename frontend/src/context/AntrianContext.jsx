@@ -7,8 +7,15 @@ import {
 
   fetchLastAntrianBpjsObatJadiService,
   fetchAntrianBpjsObatJadiByStatusService,
-  fetchAndPrintAntrianBpjsObatJadiService
+  fetchAndPrintAntrianBpjsObatJadiService,
 
+  fetchLastAntrianObatJadiService,
+  fetchAntrianObatJadiByStatusService,
+  fetchAndPrintAntrianObatJadiService,
+
+  fetchLastAntrianObatRacikanService,
+  fetchAntrianObatRacikanByStatusService,
+  fetchAndPrintAntrianObatRacikanService
 
 } from '../services/AntrianServices';
 
@@ -20,6 +27,12 @@ export const AntrianProvider = ({ children }) => {
 
   const [antrianBpjsObatJadi, setAntrianBpjsObatJadi] = useState(null);
   const [antrianListBpjsObatJadi, setAntrianListBpjsObatJadi] = useState(null);
+
+  const [antrianObatJadi, setAntrianObatJadi] = useState(null);
+  const [antrianListObatJadi, setAntrianListObatJadi] = useState(null);
+
+  const [antrianObatRacikan, setAntrianObatRacikan] = useState(null);
+  const [antrianListObatRacikan, setAntrianListObatRacikan] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,6 +77,8 @@ export const AntrianProvider = ({ children }) => {
   }, []);
 //-----------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//
 
+
+
 //-----------------------------------------------ANTRIAN BPJS OBAT JADI---------------------------------------//
   const fetchLastAntrianBpjsObatJadi = useCallback(async () => {
     setIsLoading(true);
@@ -105,6 +120,88 @@ export const AntrianProvider = ({ children }) => {
   }, []);
 //-----------------------------------------------ANTRIAN BPJS OBAT JADI---------------------------------------//
 
+//-----------------------------------------------ANTRIAN OBAT JADI---------------------------------------//
+  const fetchLastAntrianObatJadi = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLastAntrianObatJadiService();
+      setAntrianObatJadi(data);
+    } catch (error) {
+      console.error('Error fetching last antrian Obat Jadi:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchAntrianObatJadiByStatus = useCallback(async () => {
+    setIsLoading(true);
+    try { 
+      const data = await fetchAntrianObatJadiByStatusService();
+      setAntrianListObatJadi(data);
+    } catch (error) {
+      console.error('Error fetching antrian Obat Jadi by status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchAndPrintAntrianObatJadi = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchAndPrintAntrianObatJadiService();
+      setAntrianObatJadi(data);
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching and printing antrian Obat Jadi:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+//-----------------------------------------------ANTRIAN OBAT JADI---------------------------------------//
+
+//-----------------------------------------------ANTRIAN OBAT RACIKAN---------------------------------------//
+  const fetchLastAntrianObatRacikan = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLastAntrianObatRacikanService();
+      setAntrianObatRacikan(data);
+    } catch (error) {
+      console.error('Error fetching last antrian Obat Racikan:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchAntrianObatRacikanByStatus = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchAntrianObatRacikanByStatusService();
+      setAntrianListObatRacikan(data);
+    } catch (error) {
+      console.error('Error fetching antrian Obat Racikan by status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+    
+  const fetchAndPrintAntrianObatRacikan = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchAndPrintAntrianObatRacikanService();
+      setAntrianObatRacikan(data);
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching and printing antrian Obat Racikan:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+//-----------------------------------------------ANTRIAN OBAT RACIKAN---------------------------------------//  
+
   return (
     <AntrianContext.Provider
       value={{
@@ -119,6 +216,18 @@ export const AntrianProvider = ({ children }) => {
         fetchLastAntrianBpjsObatJadi,
         fetchAntrianBpjsObatJadiByStatus,
         fetchAndPrintAntrianBpjsObatJadi,
+
+        antrianObatJadi,
+        antrianListObatJadi,
+        fetchLastAntrianObatJadi,
+        fetchAntrianObatJadiByStatus,
+        fetchAndPrintAntrianObatJadi,
+
+        antrianObatRacikan,
+        antrianListObatRacikan,
+        fetchLastAntrianObatRacikan,
+        fetchAntrianObatRacikanByStatus,
+        fetchAndPrintAntrianObatRacikan,
 
         isLoading,
       }}

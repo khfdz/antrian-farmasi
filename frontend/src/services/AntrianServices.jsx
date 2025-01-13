@@ -51,3 +51,48 @@ export const fetchAndPrintAntrianBpjsObatJadiService = async () => {
 };
 //-----------------------------------------------ANTRIAN BPJS OBAT JADI---------------------------------------//
 
+//-----------------------------------------------ANTRIAN OBAT RACIKAN---------------------------------------//
+export const fetchLastAntrianObatRacikanService = async () => {
+  const response = await axios.get(
+    'http://localhost:5000/api/antrian/obat-racikan/latest'
+  );
+  return response.data;
+}
+
+export const fetchAntrianObatRacikanByStatusService = async () => {
+  const response = await axios.get(
+    'http://localhost:5000/api/antrian/obat-racikan/0'
+  );
+  return response.data;
+}
+
+export const fetchAndPrintAntrianObatRacikanService = async () => {
+  const response = await axios.post(
+    'http://localhost:5000/api/antrian/obat-racikan'
+  );
+  return response.data;
+}
+//-----------------------------------------------ANTRIAN OBAT RACIKAN---------------------------------------//
+
+//-----------------------------------------------ANTRIAN OBAT JADI---------------------------------------//
+export const fetchLastAntrianObatJadiService = async () => {
+  const response = await axios.get(
+    'http://localhost:5000/api/antrian/obat-jadi/latest'
+  );
+  return response.data;
+}
+
+export const fetchAntrianObatJadiByStatusService = async () => {
+  const response = await axios.get(
+    'http://localhost:5000/api/antrian/obat-jadi/0'
+  );
+  return response.data;
+}
+
+export const fetchAndPrintAntrianObatJadiService = async () => {
+  const response = await axios.post(
+    'http://localhost:5000/api/antrian/obat-jadi'
+  );
+  return response.data;
+}
+//-----------------------------------------------ANTRIAN OBAT JADI---------------------------------------//
