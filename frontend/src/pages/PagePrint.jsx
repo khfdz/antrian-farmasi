@@ -1,170 +1,120 @@
-import { useEffect } from "react";
-import { useAntrian } from "../hooks/UseAntrian";
+import React, { useState, useEffect } from "react";
+import io from "socket.io-client";
+
+// const socket = io("http://localhost:5000");
+const socket = io("http://192.168.1.200:5000"); // Pastikan menghubungkan ke IP laptop backend
+
 
 const PagePrint = () => {
-  const {
-    antrianBpjsObatRacikan,
-    antrianBpjsObatJadi,
-    antrianObatRacikan,
-    antrianObatJadi,
+  const [latestBpjsRacikan, setLatestBpjsRacikan] = useState(null);
+  const [latestBpjsJadi, setLatestBpjsJadi] = useState(null);
 
-    isLoading,
+  const [latestRacikan, setLatestRacikan] = useState(null);
+  const [latestJadi, setLatestJadi] = useState(null);
 
-    fetchLastAntrianBpjsObatRacikan,
-    fetchAndPrintAntrianBpjsObatRacikan,
-
-    fetchLastAntrianBpjsObatJadi,
-    fetchAndPrintAntrianBpjsObatJadi,
-
-    fetchLastAntrianObatRacikan,
-    fetchAndPrintAntrianObatRacikan,
-
-    fetchLastAntrianObatJadi,
-    fetchAndPrintAntrianObatJadi,
-
-    resetAntrianBpjsObatRacikan,
-    resetAntrianBpjsObatJadi,
-    resetAntrianObatRacikan,
-    resetAntrianObatJadi
-  } = useAntrian();
-
-  // Ambil data antrian terakhir saat halaman dimuat
-  useEffect(() => {
-    fetchLastAntrianBpjsObatRacikan();
-    fetchLastAntrianBpjsObatJadi();
-    fetchLastAntrianObatRacikan();
-    fetchLastAntrianObatJadi();
-  }, [
-    fetchLastAntrianBpjsObatRacikan, 
-    fetchLastAntrianBpjsObatJadi,
-    fetchLastAntrianObatRacikan,
-    fetchLastAntrianObatJadi
-  ]);
-
-  // Fungsi untuk handle pencetakan dan reset data
-  const handlePrint = async (type) => {
+  const fetchInitialData = async () => {
     try {
-      if (type === 'racikan') {
-        // Ambil & cetak antrian BPJS Obat Racikan
-        await fetchAndPrintAntrianBpjsObatRacikan();
-        resetAntrianBpjsObatRacikan(); // Reset setelah print
-       
-      } else if (type === 'jadi') {
-        // Ambil & cetak antrian BPJS Obat Jadi
-        await fetchAndPrintAntrianBpjsObatJadi();
-        resetAntrianBpjsObatJadi(); // Reset setelah print
-       
-      } else if (type === 'obat-racikan') {
-        // Ambil & cetak antrian Obat Racikan
-        await fetchAndPrintAntrianObatRacikan();
-        resetAntrianObatRacikan(); // Reset setelah print
-       
-      } else if (type === 'obat-jadi') {
-        // Ambil & cetak antrian Obat Jadi
-        await fetchAndPrintAntrianObatJadi();
-        resetAntrianObatJadi(); // Reset setelah print
-       
-      }
+      const responseBpjsRacikan = await fetch("http://localhost:5000/api/antrian/bpjs/obat-racikan/latest");
+      const dataBpjsRacikan = await responseBpjsRacikan.json();
+      setLatestBpjsRacikan(dataBpjsRacikan.no_antrian);
+
+      const responseBpjsJadi = await fetch("http://localhost:5000/api/antrian/bpjs/obat-jadi/latest");
+      const dataBpjsJadi = await responseBpjsJadi.json();
+      setLatestBpjsJadi(dataBpjsJadi.no_antrian);
+
+      const responseRacikan = await fetch("http://localhost:5000/api/antrian/obat-racikan/latest");
+      const dataRacikan = await responseRacikan.json();
+      setLatestRacikan(dataRacikan.no_antrian);
+
+      const responseJadi = await fetch("http://localhost:5000/api/antrian/obat-jadi/latest");
+      const dataJadi = await responseJadi.json();
+      setLatestJadi(dataJadi.no_antrian);
+
+      console.log("Data awal diambil:", { dataRacikan, dataJadi });
     } catch (error) {
-      console.error("Terjadi kesalahan saat mencetak antrian:", error);
+      console.error("Error loading initial data:", error);
     }
   };
 
+  const handleAddQueue = async (jenis) => {
+    try {
+      const endpoint = `http://localhost:5000/api/antrian/${jenis}`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      console.log(`Queue ditambahkan untuk ${jenis}:`, data);
+
+      const roomName = `${jenis}`;
+      socket.emit("sendQueueUpdate", {
+        room: roomName,
+        queueNumber: data.no_antrian,
+      });
+
+      if (jenis === "obat-racikan") {
+        setLatestRacikan(data.no_antrian);
+      } else if (jenis === "obat-jadi") {
+        setLatestJadi(data.no_antrian);
+      }
+    } catch (error) {
+      console.error(`Error adding queue for ${jenis}:`, error);
+    }
+  };
+
+  const handleBpjsAddQueue = async (jenis) => {
+    try {
+      const endpoint = `http://localhost:5000/api/antrian/bpjs/${jenis}`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      console.log(`Queue ditambahkan untuk ${jenis}:`, data);
+
+      const roomName = `bpjs-${jenis}`;
+      socket.emit("sendQueueUpdate", {
+        room: roomName,
+        queueNumber: data.no_antrian,
+      });
+
+      if (jenis === "obat-racikan") {
+        setLatestBpjsRacikan(data.no_antrian);
+      } else if (jenis === "obat-jadi") {
+        setLatestBpjsJadi(data.no_antrian);
+      }
+    } catch (error) {
+      console.error(`Error adding queue for ${jenis}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
+
   return (
-    <div className="flex flex-row items-center justify-center min-h-screen bg-gray-100 gap-4">
-      {/* Section for BPJS Obat Racikan */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center " id="racikan-section">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          BPJS Obat Racikan
-        </h1>
-        <h2 className="text-lg font-semibold text-gray-600 mb-2">Antrian</h2>
-        <p className="text-3xl font-bold text-blue-600 mb-4">A</p>
-        <p className="text-6xl font-extrabold text-gray-900 mb-6">
-          {antrianBpjsObatRacikan ? antrianBpjsObatRacikan.no_antrian : "-"}
-        </p>
-        <button
-          onClick={() => handlePrint('racikan')}
-          disabled={isLoading}
-          className={`${
-            isLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          } text-white font-bold py-2 px-4 rounded-lg w-full`}
-        >
-          {isLoading ? "Processing..." : "Ambil & Cetak Antrian"}
-        </button>
+    <div>
+      <h1>Page Print</h1>
+      
+      <div style={{ marginBottom: "20px" }}>
+        <button onClick={() => handleBpjsAddQueue("obat-racikan")}>Tambah Antrian</button>
+        <p>BPJS OBAT RACIKAN: {latestBpjsRacikan || "Belum ada data"}</p>
       </div>
 
-      {/* Section for BPJS Obat Jadi */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center" id="jadi-section">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          BPJS Obat Jadi
-        </h1>
-        <h2 className="text-lg font-semibold text-gray-600 mb-2">Antrian</h2>
-        <p className="text-3xl font-bold text-blue-600 mb-4">B</p>
-        <p className="text-6xl font-extrabold text-gray-900 mb-6">
-          {antrianBpjsObatJadi ? antrianBpjsObatJadi.no_antrian : "-"}
-        </p>
-        <button
-          onClick={() => handlePrint('jadi')}
-          disabled={isLoading}
-          className={`${
-            isLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          } text-white font-bold py-2 px-4 rounded-lg w-full`}
-        >
-          {isLoading ? "Processing..." : "Ambil & Cetak Antrian"}
-        </button>
+      <div style={{ marginBottom: "20px" }}>
+        <button onClick={() => handleBpjsAddQueue("obat-jadi")}>Tambah Antrian</button>
+        <p>BPJS OBAT JADI: {latestBpjsJadi || "Belum ada data"}</p>
       </div>
 
-      {/* Section for Obat Racikan */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center" id="racikan-section"> 
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          Obat Racikan
-        </h1>
-        <h2 className="text-lg font-semibold text-gray-600 mb-2">Antrian</h2>
-        <p className="text-3xl font-bold text-blue-600 mb-4">C</p>
-        <p className="text-6xl font-extrabold text-gray-900 mb-6">
-          {antrianObatRacikan ? antrianObatRacikan.no_antrian : "-"}
-        </p>
-        <button
-          onClick={() => handlePrint('obat-racikan')}
-          disabled={isLoading}
-          className={`${
-            isLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          } text-white font-bold py-2 px-4 rounded-lg w-full`}
-        >
-          {isLoading ? "Processing..." : "Ambil & Cetak Antrian"}
-        </button>
+      <div style={{ marginBottom: "20px" }}>
+        <button onClick={() => handleAddQueue("obat-racikan")}>Tambah Antrian</button>
+        <p>OBAT RACIKAN: {latestRacikan || "Belum ada data"}</p>
       </div>
 
-      {/* Section for Obat Jadi */}
-      <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center" id="jadi-section">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          Obat Jadi
-        </h1> 
-        <h2 className="text-lg font-semibold text-gray-600 mb-2">Antrian</h2>
-        <p className="text-3xl font-bold text-blue-600 mb-4">D</p>
-        <p className="text-6xl font-extrabold text-gray-900 mb-6">
-          {antrianObatJadi ? antrianObatJadi.no_antrian : "-"}
-        </p>
-        <button
-          onClick={() => handlePrint('obat-jadi')}
-          disabled={isLoading}  
-          className={`${
-            isLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          } text-white font-bold py-2 px-4 rounded-lg w-full`}
-        >
-          {isLoading ? "Processing..." : "Ambil & Cetak Antrian"}
-        </button>
+      <div>
+        <button onClick={() => handleAddQueue("obat-jadi")}>Tambah Antrian</button>
+        <p>OBAT JADI: {latestJadi || "Belum ada data"}</p>
       </div>
-          
-
     </div>
   );
 };

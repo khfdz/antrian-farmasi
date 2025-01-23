@@ -1,22 +1,25 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AudioProvider } from './context/AudioContext';
-import { AntrianProvider} from './context/AntrianContext';
-import PageCall from './pages/PageCall';
+
+// import PageCall from './pages/PageCall';
 import PagePrint from './pages/PagePrint';
+import PageView from './pages/PageView';
+import PageViewAndCall from './pages/PageViewAndCall';
+import PagePrintAndCall from './pages/PagePrintAndCall';
 import './App.css';
 
 const App = () => {
   return (
-      <AntrianProvider>
-    <AudioProvider>
+
       <Router>
         <Routes>
-          <Route path="/" element={<PageCall />} />
+          {/* <Route path="/" element={<PageCall />} /> */}
           <Route path="/print" element={<PagePrint />} />
+          <Route path="/view" element={<PageView />} />
+          <Route path="/viewandcall" element={<PageViewAndCall />} />
+          <Route path="/printandcall" element={<PagePrintAndCall />} />
         </Routes>
       </Router>
-    </AudioProvider>
-      </AntrianProvider>
+
   );
 };
 
