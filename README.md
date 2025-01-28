@@ -85,3 +85,5 @@ antrian-farmasi/
 bash
 Copy
 Edit
+dwdw
+lwdkwd
