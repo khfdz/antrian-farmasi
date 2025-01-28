@@ -295,7 +295,7 @@ const getAntrianObatRacikanLatest = (req, res) => {
     }
   );
 };
-    
+
 const getAllAntrianObatRacikanByStatus = (req, res) => {
   const status = req.params.status;
 
@@ -309,7 +309,7 @@ const getAllAntrianObatRacikanByStatus = (req, res) => {
       res.status(200).json(result);
     }
   );
-    }
+};
 
 const ubahStatusAntrianObatRacikan = (req, res) => {
   const { id } = req.params;
@@ -328,10 +328,10 @@ const ubahStatusAntrianObatRacikan = (req, res) => {
 
       res.status(200).json({
         message: `Antrian with ID ${id} updated to status 1 successfully`,
-      })
-      }
-    );
-  };
+      });
+    }
+  );
+};
 //----------------------------------------------ANTRIAN OBAT RACIKAN--------------------------------------------//
 
 //----------------------------------------------ANTRIAN OBAT JADI--------------------------------------------//
@@ -358,7 +358,7 @@ const tambahAntrianObatJadi = (req, res) => {
         (err, result) => {
           if (err) {
             return res.status(500).json({ error: err.message });
-          } 
+          }
 
           db.query(
             "UPDATE antrian_counter SET last_no_antrian_jadi = ? WHERE id = 1",
@@ -420,7 +420,7 @@ const getAllAntrianObatJadiByStatus = (req, res) => {
       res.status(200).json(result);
     }
   );
-    }
+};
 
 const ubahStatusAntrianObatJadi = (req, res) => {
   const { id } = req.params;
@@ -438,12 +438,12 @@ const ubahStatusAntrianObatJadi = (req, res) => {
       }
 
       res.status(200).json({
-        message: `Antrian with ID ${id} updated to status 1 successfully`,  
-      })
-      }
-    );
-    };
-  //----------------------------------------------ANTRIAN OBAT JADI--------------------------------------------//
+        message: `Antrian with ID ${id} updated to status 1 successfully`,
+      });
+    }
+  );
+};
+//----------------------------------------------ANTRIAN OBAT JADI--------------------------------------------//
 
 module.exports = {
   //-----------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//

@@ -49,36 +49,36 @@ const PageView = () => {
     socket.emit("joinRoom", "obat-racikan");
     socket.emit("joinRoom", "obat-jadi");
     
-    socket.on("queueUpdated-bpjs-obat-racikan", (data) => {
+    socket.on("antrianUpdated-bpjs-obat-racikan", (data) => {
           console.log("Pembaruan dari Socket.IO (Racikan):", data);
           // Update data terbaru dengan data yang baru
-          setBpjsRacikanData(data.queueNumber);
+          setBpjsRacikanData(data.antrianNumber);
         });
     
-    socket.on("queueUpdated-bpjs-obat-jadi", (data) => {
+    socket.on("antrianUpdated-bpjs-obat-jadi", (data) => {
           console.log("Pembaruan dari Socket.IO (Jadi):", data);
           // Update data terbaru dengan data yang baru
-          setBpjsJadiData(data.queueNumber);
+          setBpjsJadiData(data.antrianNumber);
         });
 
-    socket.on("queueUpdated-obat-racikan", (data) => {
+    socket.on("antrianUpdated-obat-racikan", (data) => {
       console.log("Pembaruan dari Socket.IO (Racikan):", data);
       // Update data terbaru dengan data yang baru
-      setRacikanData(data.queueNumber);
+      setRacikanData(data.antrianNumber);
     });
 
-    socket.on("queueUpdated-obat-jadi", (data) => {
+    socket.on("antrianUpdated-obat-jadi", (data) => {
       console.log("Pembaruan dari Socket.IO (Jadi):", data);
       // Update data terbaru dengan data yang baru
-      setJadiData(data.queueNumber);
+      setJadiData(data.antrianNumber);
     });
 
     // Membersihkan listener saat komponen di-unmount
     return () => {
-      socket.off("queueUpdated-bpjs-obat-racikan");
-      socket.off("queueUpdated-bpjs-obat-jadi");
-      socket.off("queueUpdated-obat-racikan");
-      socket.off("queueUpdated-obat-jadi");
+      socket.off("antrianUpdated-bpjs-obat-racikan");
+      socket.off("antrianUpdated-bpjs-obat-jadi");
+      socket.off("antrianUpdated-obat-racikan");
+      socket.off("antrianUpdated-obat-jadi");
     };
   }, []);
 

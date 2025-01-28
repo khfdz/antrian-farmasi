@@ -1,46 +1,43 @@
 const express = require("express");
-const { 
-    tambahAntrianBpjsObatRacikan,
-    getAllAntrianBpjsObatRacikan,
-    getAntrianBpjsObatRacikanLatest,
-    getAllAntrianBpjsObatRacikanByStatus,
-    ubahStatusAntrianBpjsObatRacikan,
+const {
+  tambahAntrianBpjsObatRacikan,
+  getAllAntrianBpjsObatRacikan,
+  getAntrianBpjsObatRacikanLatest,
+  getAllAntrianBpjsObatRacikanByStatus,
+  ubahStatusAntrianBpjsObatRacikan,
 
-    tambahAntrianBpjsObatJadi,
-    getAllAntrianBpjsObatJadi,
-    getAntrianBpjsObatJadiLatest,
-    getAllAntrianBpjsObatJadiByStatus,
-    ubahStatusAntrianBpjsObatJadi,
+  tambahAntrianBpjsObatJadi,
+  getAllAntrianBpjsObatJadi,
+  getAntrianBpjsObatJadiLatest,
+  getAllAntrianBpjsObatJadiByStatus,
+  ubahStatusAntrianBpjsObatJadi,
 
-    tambahAntrianObatRacikan,
-    getAllAntrianObatRacikan,
-    getAntrianObatRacikanLatest,
-    getAllAntrianObatRacikanByStatus,
-    ubahStatusAntrianObatRacikan,
+  tambahAntrianObatRacikan,
+  getAllAntrianObatRacikan,
+  getAntrianObatRacikanLatest,
+  getAllAntrianObatRacikanByStatus,
+  ubahStatusAntrianObatRacikan,
 
-    tambahAntrianObatJadi,
-    getAllAntrianObatJadi,
-    getAntrianObatJadiLatest,
-    getAllAntrianObatJadiByStatus,
-    ubahStatusAntrianObatJadi
-
- } = require("../controllers/antrianController");
+  tambahAntrianObatJadi,
+  getAllAntrianObatJadi,
+  getAntrianObatJadiLatest,
+  getAllAntrianObatJadiByStatus,
+  ubahStatusAntrianObatJadi,
+} = require("../controllers/antrianController");
 
 const router = express.Router();
 
-router.post("/bpjs/obat-racikan", tambahAntrianBpjsObatRacikan);   
+router.post("/bpjs/obat-racikan", tambahAntrianBpjsObatRacikan);
 router.get("/bpjs/obat-racikan", getAllAntrianBpjsObatRacikan);
 router.get("/bpjs/obat-racikan/latest", getAntrianBpjsObatRacikanLatest);
 router.get("/bpjs/obat-racikan/:status", getAllAntrianBpjsObatRacikanByStatus);
 router.patch("/bpjs/obat-racikan/:id/status", ubahStatusAntrianBpjsObatRacikan);
-
 
 router.post("/bpjs/obat-jadi", tambahAntrianBpjsObatJadi);
 router.get("/bpjs/obat-jadi", getAllAntrianBpjsObatJadi);
 router.get("/bpjs/obat-jadi/latest", getAntrianBpjsObatJadiLatest);
 router.get("/bpjs/obat-jadi/:status", getAllAntrianBpjsObatJadiByStatus);
 router.patch("/bpjs/obat-jadi/:id/status", ubahStatusAntrianBpjsObatJadi);
-
 
 router.post("/obat-racikan", tambahAntrianObatRacikan);
 router.get("/obat-racikan", getAllAntrianObatRacikan);

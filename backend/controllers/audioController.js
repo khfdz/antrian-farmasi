@@ -1,13 +1,14 @@
-const audioFiles = require('../data/dataAudio.json');
+const audioFiles = require("../data/dataAudio.json");
 
-// Generate audio sequence for the call
 function generateAudioSequence(params) {
   const { bell, noAntrian, type, letter, number, loket } = params;
   let sequence = [];
 
   if (bell) sequence.push(audioFiles.bell);
   if (noAntrian) sequence.push(audioFiles.no_antrian);
-  sequence.push(type === 'racikan' ? audioFiles.racikan : audioFiles.non_racikan);
+  sequence.push(
+    type === "racikan" ? audioFiles.racikan : audioFiles.non_racikan
+  );
 
   if (audioFiles[letter]) {
     sequence.push(audioFiles[letter]);
@@ -32,7 +33,16 @@ function generateAudioSequence(params) {
     sequence.push(`/audio/${hundreds}.mp3`);
     sequence.push(audioFiles.ratus);
     if (remainder > 0) {
-      sequence = sequence.concat(generateAudioSequence({ bell: false, noAntrian: false, type: '', letter: '', number: remainder, loket: '' }));
+      sequence = sequence.concat(
+        generateAudioSequence({
+          bell: false,
+          noAntrian: false,
+          type: "",
+          letter: "",
+          number: remainder,
+          loket: "",
+        })
+      );
     }
   }
 
@@ -48,13 +58,15 @@ exports.callAudio = (req, res) => {
   const { letter, number, loket } = req.query;
 
   if (!letter || !number || !loket) {
-    return res.status(400).json({ error: 'Missing required parameters: letter, number, loket' });
+    return res
+      .status(400)
+      .json({ error: "Missing required parameters: letter, number, loket" });
   }
 
   const audioSequence = generateAudioSequence({
     bell: true,
     noAntrian: true,
-    type: 'racikan',
+    type: "racikan",
     letter,
     number: parseInt(number, 10),
     loket,

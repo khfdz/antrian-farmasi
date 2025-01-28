@@ -36,7 +36,7 @@ const PagePrint = () => {
     }
   };
 
-  const handleAddQueue = async (jenis) => {
+  const handleAddAntrian = async (jenis) => {
     try {
       const endpoint = `http://localhost:5000/api/antrian/${jenis}`;
       const response = await fetch(endpoint, {
@@ -44,12 +44,12 @@ const PagePrint = () => {
         headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
-      console.log(`Queue ditambahkan untuk ${jenis}:`, data);
+      console.log(`Antrian ditambahkan untuk ${jenis}:`, data);
 
       const roomName = `${jenis}`;
-      socket.emit("sendQueueUpdate", {
+      socket.emit("sendAntrianUpdate", {
         room: roomName,
-        queueNumber: data.no_antrian,
+        antrianNumber: data.no_antrian,
       });
 
       if (jenis === "obat-racikan") {
@@ -58,11 +58,11 @@ const PagePrint = () => {
         setLatestJadi(data.no_antrian);
       }
     } catch (error) {
-      console.error(`Error adding queue for ${jenis}:`, error);
+      console.error(`Error adding antrian for ${jenis}:`, error);
     }
   };
 
-  const handleBpjsAddQueue = async (jenis) => {
+  const handleBpjsAddAntrian = async (jenis) => {
     try {
       const endpoint = `http://localhost:5000/api/antrian/bpjs/${jenis}`;
       const response = await fetch(endpoint, {
@@ -70,12 +70,12 @@ const PagePrint = () => {
         headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
-      console.log(`Queue ditambahkan untuk ${jenis}:`, data);
+      console.log(`Antrian ditambahkan untuk ${jenis}:`, data);
 
       const roomName = `bpjs-${jenis}`;
-      socket.emit("sendQueueUpdate", {
+      socket.emit("sendAntrianUpdate", {
         room: roomName,
-        queueNumber: data.no_antrian,
+        antrianNumber: data.no_antrian,
       });
 
       if (jenis === "obat-racikan") {
@@ -84,7 +84,7 @@ const PagePrint = () => {
         setLatestBpjsJadi(data.no_antrian);
       }
     } catch (error) {
-      console.error(`Error adding queue for ${jenis}:`, error);
+      console.error(`Error adding antrian for ${jenis}:`, error);
     }
   };
 
@@ -97,22 +97,22 @@ const PagePrint = () => {
       <h1>Page Print</h1>
       
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => handleBpjsAddQueue("obat-racikan")}>Tambah Antrian</button>
+        <button onClick={() => handleBpjsAddAntrian("obat-racikan")}>Tambah Antrian</button>
         <p>BPJS OBAT RACIKAN: {latestBpjsRacikan || "Belum ada data"}</p>
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => handleBpjsAddQueue("obat-jadi")}>Tambah Antrian</button>
+        <button onClick={() => handleBpjsAddAntrian("obat-jadi")}>Tambah Antrian</button>
         <p>BPJS OBAT JADI: {latestBpjsJadi || "Belum ada data"}</p>
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => handleAddQueue("obat-racikan")}>Tambah Antrian</button>
+        <button onClick={() => handleAddAntrian("obat-racikan")}>Tambah Antrian</button>
         <p>OBAT RACIKAN: {latestRacikan || "Belum ada data"}</p>
       </div>
 
       <div>
-        <button onClick={() => handleAddQueue("obat-jadi")}>Tambah Antrian</button>
+        <button onClick={() => handleAddAntrian("obat-jadi")}>Tambah Antrian</button>
         <p>OBAT JADI: {latestJadi || "Belum ada data"}</p>
       </div>
     </div>
