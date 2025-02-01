@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import io from "socket.io-client";
+import axios from "axios";
 
-// Hubungkan ke server Socket.IO
-// const socket = io("http://localhost:5000");
-const socket = io("http://192.168.1.200:5000"); // Pastikan menghubungkan ke IP laptop backend
-const localAccess = "192.168.1.200:5000";
-const laptop = "localhost:5000";
+const localAccess = import.meta.env.VITE_NETWORK;
+const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend
 
 const PagePrintAndCall = () => {
   const [bpjsRacikanData, setBpjsRacikanData] = useState(null);
@@ -71,6 +68,7 @@ const PagePrintAndCall = () => {
         section,
         queueNumber: no_antrian,
         loket,
+        type: "racikan",
       });
       console.log("Panggilan dikirim:", {
         section,
@@ -91,6 +89,7 @@ const PagePrintAndCall = () => {
         section,
         queueNumber: no_antrian,
         loket,
+        type: "non_racikan",
       });
       console.log("Panggilan dikirim:", {
         section,
@@ -229,8 +228,7 @@ const PagePrintAndCall = () => {
             <button
               onClick={() =>
                 bpjsRacikanUpdateStatus(bpjsRacikanData.id_antrian)
-              }
-            >
+              }>
               Ubah Status No Antrian {bpjsRacikanData.no_antrian}
             </button>
             <button
@@ -242,8 +240,7 @@ const PagePrintAndCall = () => {
                   },
                   "OBAT RACIKAN"
                 )
-              }
-            >
+              }>
               Print Loket 1
             </button>
           </>
@@ -266,8 +263,7 @@ const PagePrintAndCall = () => {
               Panggil No Antrian {bpjsJadiData.no_antrian}
             </button>
             <button
-              onClick={() => bpjsJadiUpdateStatus(bpjsJadiData.id_antrian)}
-            >
+              onClick={() => bpjsJadiUpdateStatus(bpjsJadiData.id_antrian)}>
               Ubah Status No Antrian {bpjsJadiData.no_antrian}
             </button>
             <button
@@ -279,8 +275,7 @@ const PagePrintAndCall = () => {
                   },
                   "OBAT JADI"
                 )
-              }
-            >
+              }>
               Print Loket 2
             </button>
           </>

@@ -53,20 +53,19 @@ function generateAudioSequence(params) {
   return sequence;
 }
 
-// Controller
 exports.callAudio = (req, res) => {
-  const { letter, number, loket } = req.query;
+  const { letter, number, loket, type } = req.query;
 
-  if (!letter || !number || !loket) {
-    return res
-      .status(400)
-      .json({ error: "Missing required parameters: letter, number, loket" });
+  if (!letter || !number || !loket || !type) {
+    return res.status(400).json({
+      error: "Missing required parameters: letter, number, loket, or type",
+    });
   }
 
   const audioSequence = generateAudioSequence({
     bell: true,
     noAntrian: true,
-    type: "racikan",
+    type: type,
     letter,
     number: parseInt(number, 10),
     loket,

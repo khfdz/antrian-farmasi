@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 
 // const socket = io("http://localhost:5000");
-const socket = io("http://192.168.1.200:5000"); // Pastikan menghubungkan ke IP laptop backend
-
+const localAccess = import.meta.env.VITE_NETWORK;
+const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend
 
 const PagePrint = () => {
   const [latestBpjsRacikan, setLatestBpjsRacikan] = useState(null);
@@ -14,19 +14,27 @@ const PagePrint = () => {
 
   const fetchInitialData = async () => {
     try {
-      const responseBpjsRacikan = await fetch("http://localhost:5000/api/antrian/bpjs/obat-racikan/latest");
+      const responseBpjsRacikan = await fetch(
+        `http://${localAccess}/api/antrian/bpjs/obat-racikan/latest`
+      );
       const dataBpjsRacikan = await responseBpjsRacikan.json();
       setLatestBpjsRacikan(dataBpjsRacikan.no_antrian);
 
-      const responseBpjsJadi = await fetch("http://localhost:5000/api/antrian/bpjs/obat-jadi/latest");
+      const responseBpjsJadi = await fetch(
+        `http://${localAccess}/api/antrian/bpjs/obat-jadi/latest`
+      );
       const dataBpjsJadi = await responseBpjsJadi.json();
       setLatestBpjsJadi(dataBpjsJadi.no_antrian);
 
-      const responseRacikan = await fetch("http://localhost:5000/api/antrian/obat-racikan/latest");
+      const responseRacikan = await fetch(
+        `http://${localAccess}/api/antrian/obat-racikan/latest`
+      );
       const dataRacikan = await responseRacikan.json();
       setLatestRacikan(dataRacikan.no_antrian);
 
-      const responseJadi = await fetch("http://localhost:5000/api/antrian/obat-jadi/latest");
+      const responseJadi = await fetch(
+        `http://${localAccess}/api/antrian/obat-jadi/latest`
+      );
       const dataJadi = await responseJadi.json();
       setLatestJadi(dataJadi.no_antrian);
 
@@ -38,7 +46,7 @@ const PagePrint = () => {
 
   const handleAddAntrian = async (jenis) => {
     try {
-      const endpoint = `http://localhost:5000/api/antrian/${jenis}`;
+      const endpoint = `http://${localAccess}/api/antrian/${jenis}`;
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,7 +72,7 @@ const PagePrint = () => {
 
   const handleBpjsAddAntrian = async (jenis) => {
     try {
-      const endpoint = `http://localhost:5000/api/antrian/bpjs/${jenis}`;
+      const endpoint = `http://${localAccess}/api/antrian/bpjs/${jenis}`;
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -95,24 +103,32 @@ const PagePrint = () => {
   return (
     <div>
       <h1>Page Print</h1>
-      
+
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => handleBpjsAddAntrian("obat-racikan")}>Tambah Antrian</button>
+        <button onClick={() => handleBpjsAddAntrian("obat-racikan")}>
+          Tambah Antrian
+        </button>
         <p>BPJS OBAT RACIKAN: {latestBpjsRacikan || "Belum ada data"}</p>
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => handleBpjsAddAntrian("obat-jadi")}>Tambah Antrian</button>
+        <button onClick={() => handleBpjsAddAntrian("obat-jadi")}>
+          Tambah Antrian
+        </button>
         <p>BPJS OBAT JADI: {latestBpjsJadi || "Belum ada data"}</p>
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => handleAddAntrian("obat-racikan")}>Tambah Antrian</button>
+        <button onClick={() => handleAddAntrian("obat-racikan")}>
+          Tambah Antrian
+        </button>
         <p>OBAT RACIKAN: {latestRacikan || "Belum ada data"}</p>
       </div>
 
       <div>
-        <button onClick={() => handleAddAntrian("obat-jadi")}>Tambah Antrian</button>
+        <button onClick={() => handleAddAntrian("obat-jadi")}>
+          Tambah Antrian
+        </button>
         <p>OBAT JADI: {latestJadi || "Belum ada data"}</p>
       </div>
     </div>
