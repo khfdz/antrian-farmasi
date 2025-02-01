@@ -1,331 +1,288 @@
-// import { useEffect, useState } from "react";
-// import { useAudio } from "../context/AudioContext";
-// import { AntrianContext } from "../hooks/UseAntrian";
+import React, { useState, useEffect, useRef } from "react";
+import io from "socket.io-client";
+import axios from "axios";
 
-// const PageCall = () => {
-//   const { fetchAudioSequence, playAudioSequence, isLoading } = useAudio();
-//   const {
-//     fetchAntrianBpjsObatRacikanByStatus,
-//     fetchAntrianBpjsObatJadiByStatus,
-//     fetchAntrianObatJadiByStatus,
-//     fetchAntrianObatRacikanByStatus,
-//     updateAntrianBpjsObatRacikanStatus,
-//     updateAntrianBpjsObatJadiStatus,
-//     updateAntrianObatJadiStatus,
-//     updateAntrianObatRacikanStatus,
-//     antrianListBpjsObatRacikan,
-//     antrianListBpjsObatJadi,
-//     antrianListObatRacikan,
-//     antrianListObatJadi,
-//   } = AntrianContext();
+const localAccess = import.meta.env.VITE_NETWORK;
+const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend
 
-//   const [selectedAntrianBpjsObatRacikan, setSelectedAntrianBpjsObatRacikan] = useState(null);
-//   const [selectedAntrianBpjsObatJadi, setSelectedAntrianBpjsObatJadi] = useState(null);
-//   const [selectedAntrianObatRacikan, setSelectedAntrianObatRacikan] = useState(null);
-//   const [selectedAntrianObatJadi, setSelectedAntrianObatJadi] = useState(null);
+const PagePrintAndCall = () => {
+  const [bpjsRacikanData, setBpjsRacikanData] = useState(null);
+  const [bpjsJadiData, setBpjsJadiData] = useState(null);
 
-//   useEffect(() => {
-//     fetchAntrianBpjsObatRacikanByStatus();
-//     fetchAntrianBpjsObatJadiByStatus();
-//     fetchAntrianObatRacikanByStatus();
-//     fetchAntrianObatJadiByStatus();
-//   }, []);
+  const racikanPrintRef = useRef();
+  const jadiPrintRef = useRef();
 
-//   // Effect handlers for each antrianList
-//   useEffect(() => {
-//     if (antrianListBpjsObatRacikan && antrianListBpjsObatRacikan.length > 0) {
-//       setSelectedAntrianBpjsObatRacikan(antrianListBpjsObatRacikan[0]);
-//     } else {
-//       setSelectedAntrianBpjsObatRacikan(null);
-//     }
-//   }, [antrianListBpjsObatRacikan]);
+  // Fungsi untuk mengambil data antrian dari API
+  const fetchBpjsRacikanData = async () => {
+    try {
+      const response = await axios.get(
+        `http://${localAccess}/api/antrian/bpjs/obat-racikan/0`
+      );
+      const queueList = response.data;
 
-//   useEffect(() => {
-//     if (antrianListBpjsObatJadi && antrianListBpjsObatJadi.length > 0) {
-//       setSelectedAntrianBpjsObatJadi(antrianListBpjsObatJadi[0]);
-//     } else {
-//       setSelectedAntrianBpjsObatJadi(null);
-//     }
-//   }, [antrianListBpjsObatJadi]);
+      if (queueList.length > 0) {
+        const oldestQueue = queueList.reduce((oldest, current) => {
+          return new Date(current.waktu) < new Date(oldest.waktu)
+            ? current
+            : oldest;
+        });
+        setBpjsRacikanData(oldestQueue);
+      } else {
+        setBpjsRacikanData(null); // Tidak ada antrian yang tersedia
+      }
+    } catch (error) {
+      console.error("Error fetching queue data:", error);
+    }
+  };
 
-//   useEffect(() => {
-//     if (antrianListObatRacikan && antrianListObatRacikan.length > 0) {
-//       setSelectedAntrianObatRacikan(antrianListObatRacikan[0]);
-//     } else {
-//       setSelectedAntrianObatRacikan(null);
-//     }
-//   }, [antrianListObatRacikan]);
+  const fetchBpjsJadiData = async () => {
+    try {
+      const response = await axios.get(
+        `http://${localAccess}/api/antrian/bpjs/obat-jadi/0`
+      );
+      const queueList = response.data;
 
-//   useEffect(() => {
-//     if (antrianListObatJadi && antrianListObatJadi.length > 0) {
-//       setSelectedAntrianObatJadi(antrianListObatJadi[0]);
-//     } else {
-//       setSelectedAntrianObatJadi(null);
-//     }
-//   }, [antrianListObatJadi]);
+      if (queueList.length > 0) {
+        const oldestQueue = queueList.reduce((oldest, current) => {
+          return new Date(current.waktu) < new Date(oldest.waktu)
+            ? current
+            : oldest;
+        });
+        setBpjsJadiData(oldestQueue);
+      } else {
+        setBpjsJadiData(null); // Tidak ada antrian yang tersedia
+      }
+    } catch (error) {
+      console.error("Error fetching queue data:", error);
+    }
+  };
 
-//   const handleFetchAndPlayAudio = async (loket, antrian) => {
-//     if (antrian) {
-//       console.log(`Fetching audio sequence for Loket ${loket}...`);
-//       await fetchAudioSequence("A", antrian.no_antrian, loket);
-//       await playAudioSequence();
-//     }
-//   };
+  const bpjsRacikanCall = () => {
+    if (bpjsRacikanData) {
+      const { no_antrian } = bpjsRacikanData;
+      const loket = "1"; // Loket yang digunakan
+      const section = "A"; // Bagian yang digunakan
 
-//   const handleUpdateStatus = async (id, status, type) => {
-//     try {
-//       // Update status based on the type
-//       if (type === "bpjsRacikan") {
-//         await updateAntrianBpjsObatRacikanStatus(id, status);
-//       } else if (type === "bpjsJadi") {
-//         await updateAntrianBpjsObatJadiStatus(id, status);
-//       } else if (type === "obatRacikan") {
-//         await updateAntrianObatRacikanStatus(id, status);
-//       } else if (type === "obatJadi") {
-//         await updateAntrianObatJadiStatus(id, status);
-//       }
-      
-//       // Fetch updated data
-//       fetchAntrianBpjsObatRacikanByStatus();
-//       fetchAntrianBpjsObatJadiByStatus();
-//       fetchAntrianObatRacikanByStatus();
-//       fetchAntrianObatJadiByStatus();
-      
-//       console.log('Status updated successfully');
-//     } catch (error) {
-//       console.error('Error updating status:', error);
-//     }
-//   };
+      // Emit data ke server menggunakan socket
+      socket.emit("triggerCallAudio", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+        type: "racikan",
+      });
+      console.log("Panggilan dikirim:", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+      });
+    }
+  };
 
-//   return (
-//     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-//       <div className="flex flex-row space-x-8">
-//         {/* BPJS Obat Racikan Section */}
-//         <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center">
-//           <h1 className="text-2xl font-bold text-gray-800 mb-6">BPJS Obat Racikan</h1>
-//           <h2 className="text-lg font-semibold text-gray-600 mb-4">Panggil Antrian</h2>
+  const bpjsJadiCall = () => {
+    if (bpjsJadiData) {
+      const { no_antrian } = bpjsJadiData;
+      const loket = "2"; // Loket yang digunakan
+      const section = "B"; // Bagian yang digunakan
 
-//           {selectedAntrianBpjsObatRacikan ? (
-//             <div className="mb-6">
-//               <p className="text-3xl font-bold text-blue-600 mb-2">Nomor Antrian</p>
-//               <p className="text-6xl font-extrabold text-gray-900">{selectedAntrianBpjsObatRacikan.no_antrian}</p>
-//             </div>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
+      // Emit data ke server menggunakan socket
+      socket.emit("triggerCallAudio", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+        type: "non_racikan",
+      });
+      console.log("Panggilan dikirim:", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+      });
+    }
+  };
 
-//           <div className="mb-4">
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(1, selectedAntrianBpjsObatRacikan)}
-//               disabled={!selectedAntrianBpjsObatRacikan || isLoading}
-//               className={`${
-//                 !selectedAntrianBpjsObatRacikan || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 1
-//             </button>
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(2, selectedAntrianBpjsObatRacikan)}
-//               disabled={!selectedAntrianBpjsObatRacikan || isLoading}
-//               className={`${
-//                 !selectedAntrianBpjsObatRacikan || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 2
-//             </button>
-//           </div>
+  // Fungsi untuk memanggil antrian
+  const bpjsRacikanUpdateStatus = async (id) => {
+    try {
+      await axios.patch(
+        `http://${localAccess}/api/antrian/bpjs/obat-racikan/${id}/status`
+      );
+      console.log(`Status antrian dengan ID ${id} berhasil diperbarui.`);
 
-//           {selectedAntrianBpjsObatRacikan ? (
-//             <button
-//               onClick={() => handleUpdateStatus(selectedAntrianBpjsObatRacikan.id_antrian, selectedAntrianBpjsObatRacikan.status, "bpjsRacikan")}
-//               disabled={!selectedAntrianBpjsObatRacikan}
-//               className={`${
-//                 !selectedAntrianBpjsObatRacikan
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-red-500 hover:bg-red-600"
-//               } text-white font-bold py-2 px-4 rounded-lg w-full`}
-//             >
-//               Skip
-//             </button>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
-//         </div>
+      // Ambil data terbaru setelah status diperbarui
+      fetchBpjsRacikanData();
+    } catch (error) {
+      console.error("Error updating queue status:", error);
+    }
+  };
 
-//         {/* BPJS Obat Jadi Section */}
-//         <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center">
-//           <h1 className="text-2xl font-bold text-gray-800 mb-6">BPJS Obat Jadi</h1>
-//           <h2 className="text-lg font-semibold text-gray-600 mb-4">Panggil Antrian</h2>
+  const bpjsJadiUpdateStatus = async (id) => {
+    try {
+      await axios.patch(
+        `http://${localAccess}/api/antrian/bpjs/obat-jadi/${id}/status`
+      );
+      console.log(`Status antrian dengan ID ${id} berhasil diperbarui.`);
 
-//           {selectedAntrianBpjsObatJadi ? (
-//             <div className="mb-6">
-//               <p className="text-3xl font-bold text-blue-600 mb-2">Nomor Antrian</p>
-//               <p className="text-6xl font-extrabold text-gray-900">{selectedAntrianBpjsObatJadi.no_antrian}</p>
-//             </div>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
+      // Ambil data terbaru setelah status diperbarui
+      fetchBpjsJadiData();
+    } catch (error) {
+      console.error("Error updating queue status:", error);
+    }
+  };
 
-//           <div className="mb-4">
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(1, selectedAntrianBpjsObatJadi)}
-//               disabled={!selectedAntrianBpjsObatJadi || isLoading}
-//               className={`${
-//                 !selectedAntrianBpjsObatJadi || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 1
-//             </button>
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(2, selectedAntrianBpjsObatJadi)}
-//               disabled={!selectedAntrianBpjsObatJadi || isLoading}
-//               className={`${
-//                 !selectedAntrianBpjsObatJadi || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 2
-//             </button>
-//           </div>
+  const formatWIBTime = () => {
+    const date = new Date();
+    const hours = String(date.getHours()).padStart(2, "0"); // Menambahkan leading zero jika jam < 10
+    const minutes = String(date.getMinutes()).padStart(2, "0"); // Menambahkan leading zero jika menit < 10
+    return `${hours}:${minutes} WIB`;
+  };
 
-//           {selectedAntrianBpjsObatJadi ? (
-//             <button
-//               onClick={() => handleUpdateStatus(selectedAntrianBpjsObatJadi.id_antrian, selectedAntrianBpjsObatJadi.status, "bpjsJadi")}
-//               disabled={!selectedAntrianBpjsObatJadi}
-//               className={`${
-//                 !selectedAntrianBpjsObatJadi
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-red-500 hover:bg-red-600"
-//               } text-white font-bold py-2 px-4 rounded-lg w-full`}
-//             >
-//               Skip
-//             </button>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
-//         </div>
+  const handlePrint = (data, sectionTitle) => {
+    const newWindow = window.open("", "_blank", "width=800,height=600");
+    const timeWIB = formatWIBTime(); // Ambil waktu dalam format 14.00 WIB
 
-//         {/* Obat Racikan Section */}
-//         <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center">
-//           <h1 className="text-2xl font-bold text-gray-800 mb-6">Obat Racikan</h1>
-//           <h2 className="text-lg font-semibold text-gray-600 mb-4">Panggil Antrian</h2>
+    newWindow.document.write(`
+      <html>
+        <head>
+          <style>
+            @media print {
+              @page {
+                size: 80mm auto; /* Ukuran kertas thermal (80mm lebar) */
+                margin: 0; /* Hilangkan margin */
+              }
+              body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                text-align: center;
+              }
+              .print-container {
+                padding: 10px;
+                margin: 0;
+                width: 100%;
+              }
+              h1, h2, h3, p {
+                margin: 5px 0;
+              }
+              .line {
+                border-top: 1px dashed #000;
+                margin: 10px 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-container">
+            <h1>RUMAH SAKIT</h1>
+            <h2>PERMATA KELUARGA KARAWANG</h2>
+            <div class="line"></div>
+            <h3>${sectionTitle}</h3>
+            <h2>${data.section} ${data.queueNumber}</h2>
+            <div class="line"></div>
+            <p>Silahkan menunggu sampai dipanggil</p>
+            <p>Terima kasih telah memilih kami</p>
+            <p>
+              Tanggal ${new Date().toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
+              <br />
+              ${timeWIB}
+            </p>
+          </div>
+        </body>
+      </html>
+    `);
+    newWindow.document.close();
 
-//           {selectedAntrianObatRacikan ? (
-//             <div className="mb-6">
-//               <p className="text-3xl font-bold text-blue-600 mb-2">Nomor Antrian</p>
-//               <p className="text-6xl font-extrabold text-gray-900">{selectedAntrianObatRacikan.no_antrian}</p>
-//             </div>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
+    // Aktifkan pencetakan
+    newWindow.focus();
+    newWindow.print();
 
-//           <div className="mb-4">
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(1, selectedAntrianObatRacikan)}
-//               disabled={!selectedAntrianObatRacikan || isLoading}
-//               className={`${
-//                 !selectedAntrianObatRacikan || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 1
-//             </button>
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(2, selectedAntrianObatRacikan)}
-//               disabled={!selectedAntrianObatRacikan || isLoading}
-//               className={`${
-//                 !selectedAntrianObatRacikan || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 2
-//             </button>
-//           </div>
+    // Tutup popup setelah pencetakan selesai
+    newWindow.close();
+  };
 
-//           {selectedAntrianObatRacikan ? (
-//             <button
-//               onClick={() => handleUpdateStatus(selectedAntrianObatRacikan.id_antrian, selectedAntrianObatRacikan.status, "obatRacikan")}
-//               disabled={!selectedAntrianObatRacikan}
-//               className={`${
-//                 !selectedAntrianObatRacikan
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-red-500 hover:bg-red-600"
-//               } text-white font-bold py-2 px-4 rounded-lg w-full`}
-//             >
-//               Skip
-//             </button>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
-//         </div>
+  // Ambil data antrian saat komponen dimuat
+  useEffect(() => {
+    fetchBpjsRacikanData();
+    fetchBpjsJadiData();
+  }, []);
 
-//         {/* Obat Jadi Section */}
-//         <div className="bg-white shadow-md rounded-lg p-6 w-80 text-center">
-//           <h1 className="text-2xl font-bold text-gray-800 mb-6">Obat Jadi</h1>
-//           <h2 className="text-lg font-semibold text-gray-600 mb-4">Panggil Antrian</h2>
+  return (
+    <div>
+      <div ref={racikanPrintRef}>
+        <h1>Loket 1</h1>
+        <h2>A</h2>
+        <h3>BPJS OBAT RACIKAN</h3>
+        <h2>
+          No ANTRIAN:{" "}
+          <span>
+            {bpjsRacikanData ? bpjsRacikanData.no_antrian : "Tidak Ada Antrian"}
+          </span>
+        </h2>
+        {bpjsRacikanData && (
+          <>
+            <button onClick={bpjsRacikanCall}>
+              Panggil No Antrian {bpjsRacikanData.no_antrian}
+            </button>
+            <button
+              onClick={() =>
+                bpjsRacikanUpdateStatus(bpjsRacikanData.id_antrian)
+              }>
+              Ubah Status No Antrian {bpjsRacikanData.no_antrian}
+            </button>
+            <button
+              onClick={() =>
+                handlePrint(
+                  {
+                    section: "A",
+                    queueNumber: bpjsRacikanData.no_antrian,
+                  },
+                  "OBAT RACIKAN"
+                )
+              }>
+              Print Loket 1
+            </button>
+          </>
+        )}
+      </div>
 
-//           {selectedAntrianObatJadi ? (
-//             <div className="mb-6">
-//               <p className="text-3xl font-bold text-blue-600 mb-2">Nomor Antrian</p>
-//               <p className="text-6xl font-extrabold text-gray-900">{selectedAntrianObatJadi.no_antrian}</p>
-//             </div>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
+      <div ref={jadiPrintRef}>
+        <h1>Loket 2</h1>
+        <h2>B</h2>
+        <h3>BPJS OBAT JADI</h3>
+        <h2>
+          No ANTRIAN:{" "}
+          <span>
+            {bpjsJadiData ? bpjsJadiData.no_antrian : "Tidak Ada Antrian"}
+          </span>
+        </h2>
+        {bpjsJadiData && (
+          <>
+            <button onClick={bpjsJadiCall}>
+              Panggil No Antrian {bpjsJadiData.no_antrian}
+            </button>
+            <button
+              onClick={() => bpjsJadiUpdateStatus(bpjsJadiData.id_antrian)}>
+              Ubah Status No Antrian {bpjsJadiData.no_antrian}
+            </button>
+            <button
+              onClick={() =>
+                handlePrint(
+                  {
+                    section: "B",
+                    queueNumber: bpjsJadiData.no_antrian,
+                  },
+                  "OBAT JADI"
+                )
+              }>
+              Print Loket 2
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
-//           <div className="mb-4">
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(1, selectedAntrianObatJadi)}
-//               disabled={!selectedAntrianObatJadi || isLoading}
-//               className={`${
-//                 !selectedAntrianObatJadi || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 1
-//             </button>
-//             <button
-//               onClick={() => handleFetchAndPlayAudio(2, selectedAntrianObatJadi)}
-//               disabled={!selectedAntrianObatJadi || isLoading}
-//               className={`${
-//                 !selectedAntrianObatJadi || isLoading
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-blue-500 hover:bg-blue-600"
-//               } text-white font-bold py-2 px-4 rounded-lg mb-2 w-full`}
-//             >
-//               Loket 2
-//             </button>
-//           </div>
-
-//           {selectedAntrianObatJadi ? (
-//             <button
-//               onClick={() => handleUpdateStatus(selectedAntrianObatJadi.id_antrian, selectedAntrianObatJadi.status, "obatJadi")}
-//               disabled={!selectedAntrianObatJadi}
-//               className={`${
-//                 !selectedAntrianObatJadi
-//                   ? "bg-gray-400 cursor-not-allowed"
-//                   : "bg-red-500 hover:bg-red-600"
-//               } text-white font-bold py-2 px-4 rounded-lg w-full`}
-//             >
-//               Skip
-//             </button>
-//           ) : (
-//             <p className="text-gray-600 mb-6">Tidak ada antrian</p>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default PageCall;
+export default PagePrintAndCall;

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 
 // const socket = io("http://localhost:5000");
-const socket = io("http://192.168.1.200:5000"); // Pastikan menghubungkan ke IP laptop backend
-
+const localAccess = import.meta.env.VITE_NETWORK;
+const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend
 
 const PageView = () => {
   // Menyimpan data antrian yang terbaru untuk racikan dan jadi
@@ -16,24 +16,42 @@ const PageView = () => {
   // Fetch data awal
   const fetchInitialData = async () => {
     try {
-      const responseBpjsRacikan = await fetch("http://localhost:5000/api/antrian/bpjs/obat-racikan/latest");
+      console.log("Fetching from URLs:");
+      console.log(`http://${localAccess}/api/antrian/bpjs/obat-racikan/latest`);
+      console.log(`http://${localAccess}/api/antrian/bpjs/obat-jadi/latest`);
+      console.log(`http://${localAccess}/api/antrian/obat-racikan/latest`);
+      console.log(`http://${localAccess}/api/antrian/obat-jadi/latest`);
+
+      const responseBpjsRacikan = await fetch(
+        `http://${localAccess}/api/antrian/bpjs/obat-racikan/latest`
+      );
       const dataBpjsRacikan = await responseBpjsRacikan.json();
       setBpjsRacikanData(dataBpjsRacikan.no_antrian);
 
-      const responseBpjsJadi = await fetch("http://localhost:5000/api/antrian/bpjs/obat-jadi/latest");
+      const responseBpjsJadi = await fetch(
+        `http://${localAccess}/api/antrian/bpjs/obat-jadi/latest`
+      );
       const dataBpjsJadi = await responseBpjsJadi.json();
       setBpjsJadiData(dataBpjsJadi.no_antrian);
 
-      const responseRacikan = await fetch("http://localhost:5000/api/antrian/obat-racikan/latest");
+      const responseRacikan = await fetch(
+        `http://${localAccess}/api/antrian/obat-racikan/latest`
+      );
       const dataRacikan = await responseRacikan.json();
       setRacikanData(dataRacikan.no_antrian);
 
-      const responseJadi = await fetch("http://localhost:5000/api/antrian/obat-jadi/latest");
+      const responseJadi = await fetch(
+        `http://${localAccess}/api/antrian/obat-jadi/latest`
+      );
       const dataJadi = await responseJadi.json();
       setJadiData(dataJadi.no_antrian);
 
-
-      console.log("Data awal diambil:", { dataRacikan, dataJadi, dataBpjsRacikan, dataBpjsJadi });
+      console.log("Data awal diambil:", {
+        dataRacikan,
+        dataJadi,
+        dataBpjsRacikan,
+        dataBpjsJadi,
+      });
     } catch (error) {
       console.error("Error loading initial data:", error);
     }
@@ -48,18 +66,18 @@ const PageView = () => {
     socket.emit("joinRoom", "bpjs-obat-jadi");
     socket.emit("joinRoom", "obat-racikan");
     socket.emit("joinRoom", "obat-jadi");
-    
+
     socket.on("antrianUpdated-bpjs-obat-racikan", (data) => {
-          console.log("Pembaruan dari Socket.IO (Racikan):", data);
-          // Update data terbaru dengan data yang baru
-          setBpjsRacikanData(data.antrianNumber);
-        });
-    
+      console.log("Pembaruan dari Socket.IO (Racikan):", data);
+      // Update data terbaru dengan data yang baru
+      setBpjsRacikanData(data.antrianNumber);
+    });
+
     socket.on("antrianUpdated-bpjs-obat-jadi", (data) => {
-          console.log("Pembaruan dari Socket.IO (Jadi):", data);
-          // Update data terbaru dengan data yang baru
-          setBpjsJadiData(data.antrianNumber);
-        });
+      console.log("Pembaruan dari Socket.IO (Jadi):", data);
+      // Update data terbaru dengan data yang baru
+      setBpjsJadiData(data.antrianNumber);
+    });
 
     socket.on("antrianUpdated-obat-racikan", (data) => {
       console.log("Pembaruan dari Socket.IO (Racikan):", data);
@@ -89,7 +107,8 @@ const PageView = () => {
       <div style={{ marginBottom: "20px" }}>
         <h2>BPJS Obat Racikan</h2>
         <p>
-          Nomor Antrian: {bpjsRacikanData !== null ? bpjsRacikanData : "Memuat..."}
+          Nomor Antrian:{" "}
+          {bpjsRacikanData !== null ? bpjsRacikanData : "Memuat..."}
         </p>
       </div>
 
@@ -102,20 +121,13 @@ const PageView = () => {
 
       <div style={{ marginBottom: "20px" }}>
         <h2>Obat Racikan</h2>
-        <p>
-          Nomor Antrian: {racikanData !== null ? racikanData : "Memuat..."}
-        </p>
+        <p>Nomor Antrian: {racikanData !== null ? racikanData : "Memuat..."}</p>
       </div>
 
       <div style={{ marginBottom: "20px" }}>
         <h2>Obat Jadi</h2>
-        <p>
-          Nomor Antrian: {jadiData !== null ? jadiData : "Memuat..."}
-        </p>
+        <p>Nomor Antrian: {jadiData !== null ? jadiData : "Memuat..."}</p>
       </div>
-
-
-
     </div>
   );
 };

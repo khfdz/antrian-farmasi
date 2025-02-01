@@ -2,9 +2,10 @@ import React, { useEffect } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 
-// const socket = io("http://localhost:5000");
-const socket = io("http://192.168.1.200:5000"); // Pastikan menghubungkan ke IP laptop backend
-
+// Ambil URL backend dari environment variable
+const apiUrl = import.meta.env.VITE_API_URL;
+const localAccess = import.meta.env.VITE_NETWORK;
+const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend
 
 const PageViewAndCall = () => {
   // Fungsi untuk memutar audio secara berurutan
@@ -29,12 +30,21 @@ const PageViewAndCall = () => {
     try {
       // Panggil API untuk mendapatkan urutan audio
       const response = await axios.get(
-        `http://localhost:5000/api/audio/call?letter=${data.section}&number=${data.queueNumber}&loket=${data.loket}`
+        `http://${localAccess}/api/audio/call?letter=${data.section}&number=${data.queueNumber}&loket=${data.loket}&type=${data.type}`
       );
-      const audioSequence = response.data.sequence;
 
-      console.log("Memutar urutan audio:", audioSequence);
-      await playAudioSequence(audioSequence); // Putar audio secara berurutan
+      // Periksa apakah response data dan sequence ada
+      const audioSequence = response.data?.sequence;
+
+      if (audioSequence && Array.isArray(audioSequence)) {
+        console.log("Memutar urutan audio:", audioSequence);
+        await playAudioSequence(audioSequence); // Putar audio secara berurutan
+      } else {
+        console.error(
+          "Audio sequence tidak ditemukan atau tidak valid:",
+          audioSequence
+        );
+      }
     } catch (error) {
       console.error("Error saat memanggil API atau memutar audio:", error);
     }
