@@ -9,6 +9,11 @@ const PagePrintAndCall = () => {
   const [bpjsRacikanData, setBpjsRacikanData] = useState(null);
   const [bpjsJadiData, setBpjsJadiData] = useState(null);
 
+  const [racikanData, setRacikanData] = useState(null);
+  const [jadiData, setJadiData] = useState(null);
+
+  const bpjsRacikanPrintRef = useRef();
+  const bpjsJadiPrintRef = useRef();
   const racikanPrintRef = useRef();
   const jadiPrintRef = useRef();
 
@@ -57,6 +62,50 @@ const PagePrintAndCall = () => {
     }
   };
 
+  const fetchRacikanData = async () => {
+    try {
+      const response = await axios.get(
+        `http://${localAccess}/api/antrian/obat-racikan/0`
+      );
+      const queueList = response.data;
+
+      if (queueList.length > 0) {
+        const oldestQueue = queueList.reduce((oldest, current) => {
+          return new Date(current.waktu) < new Date(oldest.waktu)
+            ? current
+            : oldest;
+        });
+        setRacikanData(oldestQueue);
+      } else {
+        setRacikanData(null); // Tidak ada antrian yang tersedia
+      }
+    } catch (error) {
+      console.error("Error fetching queue data:", error);
+    }
+  };
+
+  const fetchJadiData = async () => {
+    try {
+      const response = await axios.get(
+        `http://${localAccess}/api/antrian/obat-jadi/0`
+      );
+      const queueList = response.data;
+
+      if (queueList.length > 0) {
+        const oldestQueue = queueList.reduce((oldest, current) => {
+          return new Date(current.waktu) < new Date(oldest.waktu)
+            ? current
+            : oldest;
+        });
+        setJadiData(oldestQueue);
+      } else {
+        setJadiData(null); // Tidak ada antrian yang tersedia
+      }
+    } catch (error) {
+      console.error("Error fetching queue data:", error);
+    }
+  };
+
   const bpjsRacikanCall = () => {
     if (bpjsRacikanData) {
       const { no_antrian } = bpjsRacikanData;
@@ -99,6 +148,48 @@ const PagePrintAndCall = () => {
     }
   };
 
+  const racikanCall = () => {
+    if (racikanData) {
+      const { no_antrian } = racikanData;
+      const loket = "3"; // Loket yang digunakan
+      const section = "C"; // Bagian yang digunakan
+
+      // Emit data ke server menggunakan socket
+      socket.emit("triggerCallAudio", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+        type: "racikan",
+      });
+      console.log("Panggilan dikirim:", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+      });
+    }
+  };
+
+  const jadiCall = () => {
+    if (jadiData) {
+      const { no_antrian } = jadiData;
+      const loket = "4"; // Loket yang digunakan
+      const section = "D"; // Bagian yang digunakan
+
+      // Emit data ke server menggunakan socket
+      socket.emit("triggerCallAudio", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+        type: "non_racikan",
+      });
+      console.log("Panggilan dikirim:", {
+        section,
+        queueNumber: no_antrian,
+        loket,
+      });
+    }
+  };
+
   // Fungsi untuk memanggil antrian
   const bpjsRacikanUpdateStatus = async (id) => {
     try {
@@ -123,6 +214,34 @@ const PagePrintAndCall = () => {
 
       // Ambil data terbaru setelah status diperbarui
       fetchBpjsJadiData();
+    } catch (error) {
+      console.error("Error updating queue status:", error);
+    }
+  };
+
+  const racikanUpdateStatus = async (id) => {
+    try {
+      await axios.patch(
+        `http://${localAccess}/api/antrian/obat-racikan/${id}/status`
+      );
+      console.log(`Status antrian dengan ID ${id} berhasil diperbarui.`);
+
+      // Ambil data terbaru setelah status diperbarui
+      fetchRacikanData();
+    } catch (error) {
+      console.error("Error updating queue status:", error);
+    }
+  };
+
+  const jadiUpdateStatus = async (id) => {
+    try {
+      await axios.patch(
+        `http://${localAccess}/api/antrian/obat-jadi/${id}/status`
+      );
+      console.log(`Status antrian dengan ID ${id} berhasil diperbarui.`);
+
+      // Ambil data terbaru setelah status diperbarui
+      fetchJadiData();
     } catch (error) {
       console.error("Error updating queue status:", error);
     }
@@ -206,11 +325,13 @@ const PagePrintAndCall = () => {
   useEffect(() => {
     fetchBpjsRacikanData();
     fetchBpjsJadiData();
+    fetchRacikanData();
+    fetchJadiData();
   }, []);
 
   return (
     <div>
-      <div ref={racikanPrintRef}>
+      <div ref={bpjsRacikanPrintRef}>
         <h1>Loket 1</h1>
         <h2>A</h2>
         <h3>BPJS OBAT RACIKAN</h3>
@@ -247,7 +368,7 @@ const PagePrintAndCall = () => {
         )}
       </div>
 
-      <div ref={jadiPrintRef}>
+      <div ref={bpjsJadiPrintRef}>
         <h1>Loket 2</h1>
         <h2>B</h2>
         <h3>BPJS OBAT JADI</h3>
@@ -277,6 +398,72 @@ const PagePrintAndCall = () => {
                 )
               }>
               Print Loket 2
+            </button>
+          </>
+        )}
+      </div>
+
+      <div ref={racikanPrintRef}>
+        <h1>Loket 3</h1>
+        <h2>C</h2>
+        <h3>OBAT RACIKAN</h3>
+        <h2>
+          No ANTRIAN:{" "}
+          <span>
+            {racikanData ? racikanData.no_antrian : "Tidak Ada Antrian"}
+          </span>
+        </h2>
+        {racikanData && (
+          <>
+            <button onClick={racikanCall}>
+              Panggil No Antrian {racikanData.no_antrian}
+            </button>
+            <button onClick={() => racikanUpdateStatus(racikanData.id_antrian)}>
+              Ubah Status No Antrian {racikanData.no_antrian}
+            </button>
+            <button
+              onClick={() =>
+                handlePrint(
+                  {
+                    section: "C",
+                    queueNumber: racikanData.no_antrian,
+                  },
+                  "RACIKAN"
+                )
+              }>
+              Print Loket 3
+            </button>
+          </>
+        )}
+      </div>
+
+      <div ref={jadiPrintRef}>
+        <h1>Loket 4</h1>
+        <h2>D</h2>
+        <h3>OBAT JADI</h3>
+        <h2>
+          No ANTRIAN:{" "}
+          <span>{jadiData ? jadiData.no_antrian : "Tidak Ada Antrian"}</span>
+        </h2>
+        {jadiData && (
+          <>
+            <button onClick={jadiCall}>
+              Panggil No Antrian {jadiData.no_antrian}
+            </button>
+            <button onClick={() => jadiUpdateStatus(jadiData.id_antrian)}>
+              Ubah Status No Antrian {jadiData.no_antrian}
+            </button>
+            <button
+              onClick={() =>
+                handlePrint(
+                  {
+                    section: "D",
+                    queueNumber: jadiData.no_antrian,
+                  },
+                  "JADI"
+                )
+              }>
+              Print Loket 4
             </button>
           </>
         )}

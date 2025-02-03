@@ -1,133 +1,165 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
+import axios from "axios";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
-// const socket = io("http://localhost:5000");
 const localAccess = import.meta.env.VITE_NETWORK;
-const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend
+const socket = io(`http://${localAccess}`);
 
 const PageView = () => {
-  // Menyimpan data antrian yang terbaru untuk racikan dan jadi
   const [bpjsRacikanData, setBpjsRacikanData] = useState(null);
   const [bpjsJadiData, setBpjsJadiData] = useState(null);
-
   const [racikanData, setRacikanData] = useState(null);
   const [jadiData, setJadiData] = useState(null);
 
-  // Fetch data awal
+  const playAudioSequence = async (audioSequence) => {
+    for (const audioPath of audioSequence) {
+      const audio = new Audio(audioPath);
+      try {
+        await audio.play();
+        await new Promise((resolve) => {
+          audio.onended = resolve;
+        });
+      } catch (error) {
+        console.error("Gagal memutar audio:", error);
+      }
+    }
+  };
+
+  const handlePlayCallAudio = async (data) => {
+    console.log("Menerima data untuk memutar audio:", data);
+
+    try {
+      const response = await axios.get(`http://${localAccess}/api/audio/call`, {
+        params: {
+          letter: data.section,
+          number: data.queueNumber,
+          loket: data.loket,
+          type: data.type,
+        },
+      });
+
+      const audioSequence = response.data?.sequence;
+
+      if (audioSequence && Array.isArray(audioSequence)) {
+        console.log("Memutar urutan audio:", audioSequence);
+        await playAudioSequence(audioSequence);
+      } else {
+        console.error(
+          "Audio sequence tidak ditemukan atau tidak valid:",
+          audioSequence
+        );
+      }
+    } catch (error) {
+      console.error("Error saat memanggil API atau memutar audio:", error);
+    }
+  };
+
+  useEffect(() => {
+    socket.emit("joinRoom", "callRoom");
+    socket.on("playCallAudio", handlePlayCallAudio);
+    return () => {
+      socket.off("playCallAudio", handlePlayCallAudio);
+    };
+  }, []);
+
   const fetchInitialData = async () => {
     try {
-      console.log("Fetching from URLs:");
-      console.log(`http://${localAccess}/api/antrian/bpjs/obat-racikan/latest`);
-      console.log(`http://${localAccess}/api/antrian/bpjs/obat-jadi/latest`);
-      console.log(`http://${localAccess}/api/antrian/obat-racikan/latest`);
-      console.log(`http://${localAccess}/api/antrian/obat-jadi/latest`);
-
-      const responseBpjsRacikan = await fetch(
-        `http://${localAccess}/api/antrian/bpjs/obat-racikan/latest`
+      const urls = [
+        "bpjs/obat-racikan/latest",
+        "bpjs/obat-jadi/latest",
+        "obat-racikan/latest",
+        "obat-jadi/latest",
+      ];
+      const responses = await Promise.all(
+        urls.map((url) => axios.get(`http://${localAccess}/api/antrian/${url}`))
       );
-      const dataBpjsRacikan = await responseBpjsRacikan.json();
-      setBpjsRacikanData(dataBpjsRacikan.no_antrian);
 
-      const responseBpjsJadi = await fetch(
-        `http://${localAccess}/api/antrian/bpjs/obat-jadi/latest`
+      setBpjsRacikanData(responses[0].data.no_antrian);
+      setBpjsJadiData(responses[1].data.no_antrian);
+      setRacikanData(responses[2].data.no_antrian);
+      setJadiData(responses[3].data.no_antrian);
+
+      console.log(
+        "Data awal diambil:",
+        responses.map((res) => res.data)
       );
-      const dataBpjsJadi = await responseBpjsJadi.json();
-      setBpjsJadiData(dataBpjsJadi.no_antrian);
-
-      const responseRacikan = await fetch(
-        `http://${localAccess}/api/antrian/obat-racikan/latest`
-      );
-      const dataRacikan = await responseRacikan.json();
-      setRacikanData(dataRacikan.no_antrian);
-
-      const responseJadi = await fetch(
-        `http://${localAccess}/api/antrian/obat-jadi/latest`
-      );
-      const dataJadi = await responseJadi.json();
-      setJadiData(dataJadi.no_antrian);
-
-      console.log("Data awal diambil:", {
-        dataRacikan,
-        dataJadi,
-        dataBpjsRacikan,
-        dataBpjsJadi,
-      });
     } catch (error) {
       console.error("Error loading initial data:", error);
     }
   };
 
   useEffect(() => {
-    // Ambil data awal saat komponen dimuat
     fetchInitialData();
 
-    // Bergabung ke room WebSocket untuk mendengarkan pembaruan
     socket.emit("joinRoom", "bpjs-obat-racikan");
     socket.emit("joinRoom", "bpjs-obat-jadi");
     socket.emit("joinRoom", "obat-racikan");
     socket.emit("joinRoom", "obat-jadi");
 
-    socket.on("antrianUpdated-bpjs-obat-racikan", (data) => {
-      console.log("Pembaruan dari Socket.IO (Racikan):", data);
-      // Update data terbaru dengan data yang baru
-      setBpjsRacikanData(data.antrianNumber);
+    const socketEvents = [
+      { event: "antrianUpdated-bpjs-obat-racikan", setter: setBpjsRacikanData },
+      { event: "antrianUpdated-bpjs-obat-jadi", setter: setBpjsJadiData },
+      { event: "antrianUpdated-obat-racikan", setter: setRacikanData },
+      { event: "antrianUpdated-obat-jadi", setter: setJadiData },
+    ];
+
+    socketEvents.forEach(({ event, setter }) => {
+      socket.on(event, (data) => {
+        console.log(`Pembaruan dari Socket.IO (${event}):`, data);
+        setter(data.antrianNumber);
+      });
     });
 
-    socket.on("antrianUpdated-bpjs-obat-jadi", (data) => {
-      console.log("Pembaruan dari Socket.IO (Jadi):", data);
-      // Update data terbaru dengan data yang baru
-      setBpjsJadiData(data.antrianNumber);
-    });
-
-    socket.on("antrianUpdated-obat-racikan", (data) => {
-      console.log("Pembaruan dari Socket.IO (Racikan):", data);
-      // Update data terbaru dengan data yang baru
-      setRacikanData(data.antrianNumber);
-    });
-
-    socket.on("antrianUpdated-obat-jadi", (data) => {
-      console.log("Pembaruan dari Socket.IO (Jadi):", data);
-      // Update data terbaru dengan data yang baru
-      setJadiData(data.antrianNumber);
-    });
-
-    // Membersihkan listener saat komponen di-unmount
     return () => {
-      socket.off("antrianUpdated-bpjs-obat-racikan");
-      socket.off("antrianUpdated-bpjs-obat-jadi");
-      socket.off("antrianUpdated-obat-racikan");
-      socket.off("antrianUpdated-obat-jadi");
+      socketEvents.forEach(({ event }) => socket.off(event));
     };
   }, []);
 
   return (
-    <div>
-      <h1>Page View</h1>
+    <div className="bg-gray-100">
+      <Navbar />
 
-      <div style={{ marginBottom: "20px" }}>
-        <h2>BPJS Obat Racikan</h2>
-        <p>
-          Nomor Antrian:{" "}
-          {bpjsRacikanData !== null ? bpjsRacikanData : "Memuat..."}
-        </p>
+      <div className="p-4 space-between flex gap-12 mt-[86px] mb-[80px] ">
+        {[
+          {
+            label: "Obat Non Racikan",
+            data: bpjsRacikanData,
+            color: "bg-biru1",
+            prefix: "A",
+          },
+          {
+            label: "Obat Racikan",
+            data: bpjsJadiData,
+            color: "bg-biru1",
+            prefix: "B",
+          },
+          {
+            label: "Obat Non Racikan",
+            data: racikanData,
+            color: "bg-hijau1",
+            prefix: "C",
+          },
+          {
+            label: "Obat Racikan",
+            data: jadiData,
+            color: "bg-hijau1",
+            prefix: "D",
+          },
+        ].map(({ label, data, color, prefix }, index) => (
+          <div
+            key={index}
+            className={`${color} w-[30%] h-[50%] text-center rounded-md shadow-xl`}>
+            <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
+            <p className="text-6xl text-white w-full py-12 items-center justify-center shadow-xl">
+              {prefix} {data !== null ? data : "Memuat..."}
+            </p>
+          </div>
+        ))}
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
-        <h2>BPJS Obat Jadi</h2>
-        <p>
-          Nomor Antrian: {bpjsJadiData !== null ? bpjsJadiData : "Memuat..."}
-        </p>
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <h2>Obat Racikan</h2>
-        <p>Nomor Antrian: {racikanData !== null ? racikanData : "Memuat..."}</p>
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <h2>Obat Jadi</h2>
-        <p>Nomor Antrian: {jadiData !== null ? jadiData : "Memuat..."}</p>
-      </div>
+      <Footer />
     </div>
   );
 };
