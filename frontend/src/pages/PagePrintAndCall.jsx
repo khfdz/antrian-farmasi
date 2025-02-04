@@ -191,14 +191,26 @@ const PagePrintAndCall = () => {
   };
 
   // Fungsi untuk memanggil antrian
+  // const bpjsRacikanUpdateStatus = async (id) => {
+  //   try {
+  //     await axios.patch(
+  //       `http://${localAccess}/api/antrian/bpjs/obat-racikan/${id}/status`
+  //     );
+  //     console.log(`Status antrian dengan ID ${id} berhasil diperbarui.`);
+
+  //     // Ambil data terbaru setelah status diperbarui
+  //     fetchBpjsRacikanData();
+  //   } catch (error) {
+  //     console.error("Error updating queue status:", error);
+  //   }
+  // };
+
   const bpjsRacikanUpdateStatus = async (id) => {
     try {
-      await axios.patch(
-        `http://${localAccess}/api/antrian/bpjs/obat-racikan/${id}/status`
-      );
+      const url = `http://${localAccess}/api/antrian/bpjs/obat-racikan/${id}/status`;
+      console.log("URL yang dikirim:", url); // Log URL yang dikirim
+      await axios.patch(url);
       console.log(`Status antrian dengan ID ${id} berhasil diperbarui.`);
-
-      // Ambil data terbaru setelah status diperbarui
       fetchBpjsRacikanData();
     } catch (error) {
       console.error("Error updating queue status:", error);

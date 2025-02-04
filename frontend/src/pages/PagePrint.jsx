@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import Navbar from "../components/Navbar";
@@ -12,6 +12,11 @@ const PagePrint = () => {
   const [latestBpjsJadi, setLatestBpjsJadi] = useState(null);
   const [latestRacikan, setLatestRacikan] = useState(null);
   const [latestJadi, setLatestJadi] = useState(null);
+
+  // const bpjsRacikanPrintRef = useRef();
+  // const bpjsJadiPrintRef = useRef();
+  // const racikanPrintRef = useRef();
+  // const jadiPrintRef = useRef();
 
   // Fetch initial data
   const fetchInitialData = async () => {
@@ -103,6 +108,77 @@ const PagePrint = () => {
     fetchInitialData();
   }, []);
 
+  const formatWIBTime = () => {
+    const date = new Date();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes} WIB`;
+  };
+
+  const handlePrint = (data, sectionTitle) => {
+    const newWindow = window.open("", "_blank", "width=800, height=600");
+    const timeWIB = formatWIBTime();
+
+    newWindow.document.write(`
+      <html>
+        <head>
+          <style>
+            @media print {
+              @page {
+                size: 80mm auto; /* Ukuran kertas thermal (80mm lebar) */
+                margin: 0; /* Hilangkan margin */
+              }
+              body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                text-align: center;
+              }
+              .print-container {
+                padding: 10px;
+                margin: 0;
+                width: 100%;
+              }
+              h1, h2, h3, p {
+                margin: 5px 0;
+              }
+              .line {
+                border-top: 1px dashed #000;
+                margin: 10px 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-container">
+            <h1>RUMAH SAKIT</h1>
+            <h2>PERMATA KELUARGA KARAWANG</h2>
+            <div class="line"></div>
+            <h3>${sectionTitle}</h3>
+            <h2>${data.section} ${data.queueNumber}</h2>
+            <div class="line"></div>
+            <p>Silahkan menunggu sampai dipanggil</p>
+            <p>Terima kasih telah memilih kami</p>
+            <p>
+              Tanggal ${new Date().toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
+              <br />
+              ${timeWIB}
+            </p>
+          </div>
+        </body>
+      </html>
+    `);
+
+    newWindow.document.close();
+    newWindow.focus();
+    newWindow.print();
+    newWindow.close();
+  };
+
   return (
     <div className="bg-gray-100">
       <Navbar />
@@ -113,25 +189,61 @@ const PagePrint = () => {
             label: "Obat Non Racikan",
             color: "bg-biru1",
             prefix: "A",
-            button: () => handleAntrian("bpjs/obat-racikan"),
+            button: () => {
+              handleAntrian("bpjs/obat-racikan");
+              handlePrint(
+                {
+                  section: "A",
+                  queueNumber: latestBpjsRacikan,
+                },
+                "Obat Non Racikan"
+              );
+            },
           },
           {
             label: "Obat Racikan",
             color: "bg-biru1",
             prefix: "B",
-            button: () => handleAntrian("bpjs/obat-jadi"),
+            button: () => {
+              handleAntrian("bpjs/obat-jadi");
+              handlePrint(
+                {
+                  section: "B",
+                  queueNumber: latestBpjsJadi,
+                },
+                "Obat Racikan"
+              );
+            },
           },
           {
             label: "Obat Non Racikan",
             color: "bg-hijau1",
             prefix: "C",
-            button: () => handleAntrian("obat-racikan"),
+            button: () => {
+              handleAntrian("obat-racikan");
+              handlePrint(
+                {
+                  section: "C",
+                  queueNumber: latestRacikan,
+                },
+                "Obat Non Racikan"
+              );
+            },
           },
           {
             label: "Obat Racikan",
             color: "bg-hijau1",
             prefix: "D",
-            button: () => handleAntrian("obat-jadi"),
+            button: () => {
+              handleAntrian("obat-jadi");
+              handlePrint(
+                {
+                  section: "D",
+                  queueNumber: latestJadi,
+                },
+                "Obat Racikan"
+              );
+            },
           },
         ].map(({ label, color, prefix, button }, index) => (
           <div
@@ -140,23 +252,20 @@ const PagePrint = () => {
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center">
               {prefix}{" "}
-              {
-                // Menampilkan nomor antrian jika ada, atau teks loading jika belum ada
-                latestBpjsRacikan ||
-                latestBpjsJadi ||
-                latestRacikan ||
-                latestJadi
-                  ? prefix === "A"
-                    ? latestBpjsRacikan
-                    : prefix === "B"
-                    ? latestBpjsJadi
-                    : prefix === "C"
-                    ? latestRacikan
-                    : prefix === "D"
-                    ? latestJadi
-                    : "Memuat..."
+              {latestBpjsRacikan ||
+              latestBpjsJadi ||
+              latestRacikan ||
+              latestJadi
+                ? prefix === "A"
+                  ? latestBpjsRacikan
+                  : prefix === "B"
+                  ? latestBpjsJadi
+                  : prefix === "C"
+                  ? latestRacikan
+                  : prefix === "D"
+                  ? latestJadi
                   : "Memuat..."
-              }
+                : "Memuat..."}
             </p>
             <button
               onClick={button}
