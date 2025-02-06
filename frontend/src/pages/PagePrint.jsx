@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Footer from "../components/FooterAdm";
 
 const localAccess = import.meta.env.VITE_NETWORK;
 const socket = io(`http://${localAccess}`);
@@ -180,21 +180,21 @@ const PagePrint = () => {
   };
 
   return (
-    <div className="bg-gray-100">
+    <div className="bg-gray-200 w-screen h-screen items-center justify-center flex">
       <Navbar />
 
-      <div className="p-4 space-between flex gap-12 mt-[86px] mb-[80px]">
+      <div className="pr-4 pl-4 space-between flex gap-12 ">
         {[
           {
             label: "Obat Non Racikan",
             color: "bg-biru1",
             prefix: "A",
             button: () => {
-              handleAntrian("bpjs/obat-racikan");
+              handleAntrian("bpjs/obat-jadi");
               handlePrint(
                 {
                   section: "A",
-                  queueNumber: latestBpjsRacikan,
+                  queueNumber: latestBpjsJadi,
                 },
                 "Obat Non Racikan"
               );
@@ -205,11 +205,11 @@ const PagePrint = () => {
             color: "bg-biru1",
             prefix: "B",
             button: () => {
-              handleAntrian("bpjs/obat-jadi");
+              handleAntrian("bpjs/obat-racikan");
               handlePrint(
                 {
                   section: "B",
-                  queueNumber: latestBpjsJadi,
+                  queueNumber: latestBpjsRacikan,
                 },
                 "Obat Racikan"
               );
@@ -220,11 +220,11 @@ const PagePrint = () => {
             color: "bg-hijau1",
             prefix: "C",
             button: () => {
-              handleAntrian("obat-racikan");
+              handleAntrian("obat-jadi");
               handlePrint(
                 {
                   section: "C",
-                  queueNumber: latestRacikan,
+                  queueNumber: latestJadi,
                 },
                 "Obat Non Racikan"
               );
@@ -235,11 +235,11 @@ const PagePrint = () => {
             color: "bg-hijau1",
             prefix: "D",
             button: () => {
-              handleAntrian("obat-jadi");
+              handleAntrian("obat-racikan");
               handlePrint(
                 {
                   section: "D",
-                  queueNumber: latestJadi,
+                  queueNumber: latestRacikan,
                 },
                 "Obat Racikan"
               );
@@ -248,28 +248,28 @@ const PagePrint = () => {
         ].map(({ label, color, prefix, button }, index) => (
           <div
             key={index}
-            className={`${color} w-[30%] h-[50%] text-center rounded-md shadow-xl`}>
+            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center">
               {prefix}{" "}
-              {latestBpjsRacikan ||
-              latestBpjsJadi ||
-              latestRacikan ||
-              latestJadi
+              {latestBpjsJadi ||
+              latestBpjsRacikan ||
+              latestJadi ||
+              latestRacikan
                 ? prefix === "A"
-                  ? latestBpjsRacikan
-                  : prefix === "B"
                   ? latestBpjsJadi
+                  : prefix === "B"
+                  ? latestBpjsRacikan
                   : prefix === "C"
-                  ? latestRacikan
-                  : prefix === "D"
                   ? latestJadi
+                  : prefix === "D"
+                  ? latestRacikan
                   : "Memuat..."
                 : "Memuat..."}
             </p>
             <button
               onClick={button}
-              className="p-4 mb-6 bg-white rounded-md text-xl">
+              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl">
               Cetak Antrian
             </button>
           </div>
