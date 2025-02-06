@@ -1,20 +1,31 @@
 const audioFiles = require("../data/dataAudio.json");
 
-function generateAudioSequence(params) {
+function generateAudioSequence(params, isRecursive = false) {
   const { bell, noAntrian, type, letter, number, loket } = params;
   let sequence = [];
 
   if (bell) sequence.push(audioFiles.bell);
+
+  // Tambahkan Racikan atau Non-Racikan hanya jika bukan rekursi
+  if (!isRecursive) {
+    sequence.push(
+      type === "racikan" ? audioFiles.racikan : audioFiles.non_racikan
+    );
+  }
+
+  // No Antrian setelah Racikan/Non-Racikan
   if (noAntrian) sequence.push(audioFiles.no_antrian);
-  sequence.push(
-    type === "racikan" ? audioFiles.racikan : audioFiles.non_racikan
-  );
 
   if (audioFiles[letter]) {
     sequence.push(audioFiles[letter]);
   }
 
-  if (number <= 9) {
+  // Tangani angka khusus 100
+  if (number === 100) {
+    sequence.push(`/audio/100.mp3`);
+  }
+  // Tangani angka selain 100
+  else if (number <= 9) {
     sequence.push(`/audio/${number}.mp3`);
   } else if (number > 9 && number < 20) {
     sequence.push(`/audio/${number - 10}.mp3`);
@@ -27,21 +38,25 @@ function generateAudioSequence(params) {
     if (units > 0) {
       sequence.push(`/audio/${units}.mp3`);
     }
-  } else if (number >= 100) {
-    const hundreds = Math.floor(number / 100);
-    const remainder = number % 100;
-    sequence.push(`/audio/${hundreds}.mp3`);
-    sequence.push(audioFiles.ratus);
-    if (remainder > 0) {
+  } else if (number > 100) {
+    if (number % 100 === 0) {
+      sequence.push(`/audio/${number}.mp3`);
+    } else {
+      const hundreds = Math.floor(number / 100) * 100;
+      const remainder = number % 100;
+      sequence.push(`/audio/${hundreds}.mp3`);
       sequence = sequence.concat(
-        generateAudioSequence({
-          bell: false,
-          noAntrian: false,
-          type: "",
-          letter: "",
-          number: remainder,
-          loket: "",
-        })
+        generateAudioSequence(
+          {
+            bell: false,
+            type: "",
+            noAntrian: false,
+            letter: "",
+            number: remainder,
+            loket: "",
+          },
+          true
+        ) // **Set isRecursive = true untuk mencegah duplikasi**
       );
     }
   }

@@ -2,16 +2,16 @@ import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
-    <div className="bg-biru1 text-white text-2xl py-8 overflow-hidden">
+    <div className="bg-biru1 h-20 flex items-center text-white text-2xl py-8 overflow-hidden fixed bottom-0">
       <motion.div
         className="whitespace-nowrap"
         animate={{
-          x: ["100%", "-100%"],
+          x: ["63%", "-100%"], // Mengatur pergerakan dari kanan ke kiri
         }}
         transition={{
-          repeat: Infinity,
-          duration: 30,
-          ease: "linear",
+          repeat: Infinity, // Ulangi animasi
+          duration: 130, // Atur durasi untuk kecepatan
+          ease: "linear", // Gunakan easing linear agar pergerakannya rata
         }}>
         <span>
           Visi kami adalah menjadi Rumah Sakit yang mengutamakan pelayanan
