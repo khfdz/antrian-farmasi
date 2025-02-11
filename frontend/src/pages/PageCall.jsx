@@ -116,7 +116,7 @@ const PageCall = () => {
       icon: "info",
       showConfirmButton: false,
       allowOutsideClick: false,
-      timer: 14000, // Waktu animasi 3 detik
+      timer: 16000, // Waktu animasi 3 detik
     }).then(() => {
       // Setelah animasi selesai, tampilkan notifikasi sukses
       Swal.fire({
@@ -124,7 +124,7 @@ const PageCall = () => {
         text: `Antrian ${data.no_antrian} telah dipanggil di loket ${loket}`,
         icon: "success",
         confirmButtonText: "Tutup",
-        timer: 14000,
+        timer: 2000,
       });
     });
 

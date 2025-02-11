@@ -13,12 +13,6 @@ const PagePrint = () => {
   const [latestRacikan, setLatestRacikan] = useState(null);
   const [latestJadi, setLatestJadi] = useState(null);
 
-  // const bpjsRacikanPrintRef = useRef();
-  // const bpjsJadiPrintRef = useRef();
-  // const racikanPrintRef = useRef();
-  // const jadiPrintRef = useRef();
-
-  // Fetch initial data
   const fetchInitialData = async () => {
     try {
       const urls = [
@@ -105,8 +99,35 @@ const PagePrint = () => {
   };
 
   useEffect(() => {
-    fetchInitialData();
-  }, []);
+    fetchInitialData(); // Ambil data awal saat komponen mount
+
+    socket.emit("joinRoom", "antrian-room");
+
+    socket.on("receiveQueueUpdate", ({ section, queueNumber }) => {
+      console.log(`Update antrian diterima untuk ${section}: ${queueNumber}`);
+
+      // Pastikan hanya update jika queueNumber baru berbeda
+      if (
+        section === "bpjs-obat-racikan" &&
+        queueNumber !== latestBpjsRacikan
+      ) {
+        setLatestBpjsRacikan(queueNumber);
+      } else if (
+        section === "bpjs-obat-jadi" &&
+        queueNumber !== latestBpjsJadi
+      ) {
+        setLatestBpjsJadi(queueNumber);
+      } else if (section === "obat-racikan" && queueNumber !== latestRacikan) {
+        setLatestRacikan(queueNumber);
+      } else if (section === "obat-jadi" && queueNumber !== latestJadi) {
+        setLatestJadi(queueNumber);
+      }
+    });
+
+    return () => {
+      socket.off("receiveQueueUpdate"); // Bersihkan listener saat unmount
+    };
+  }, [latestBpjsRacikan, latestBpjsJadi, latestRacikan, latestJadi]);
 
   const formatWIBTime = () => {
     const date = new Date();
@@ -116,8 +137,20 @@ const PagePrint = () => {
   };
 
   const handlePrint = (data, sectionTitle) => {
-    const newWindow = window.open("", "_blank", "width=800, height=600");
     const timeWIB = formatWIBTime();
+
+    // Emit update lebih dulu biar cepat sampai ke socket
+    socket.emit("sendQueueUpdate", {
+      section: data.section,
+      queueNumber: data.queueNumber,
+    });
+
+    console.log("Nomor antrian dikirim ke socket:", {
+      section: data.section,
+      queueNumber: data.queueNumber,
+    });
+
+    const newWindow = window.open("", "_blank", "width=800, height=600");
 
     newWindow.document.write(`
       <html>
@@ -125,8 +158,8 @@ const PagePrint = () => {
           <style>
             @media print {
               @page {
-                size: 80mm auto; /* Ukuran kertas thermal (80mm lebar) */
-                margin: 0; /* Hilangkan margin */
+                size: 80mm auto;
+                margin: 0;
               }
               body {
                 margin: 0;
@@ -157,7 +190,7 @@ const PagePrint = () => {
             <h3>${sectionTitle}</h3>
             <h2>${data.section} ${data.queueNumber}</h2>
             <div class="line"></div>
-            <p>Silahkan menunggu sampai dipanggil</p>
+            <p>Silakan menunggu sampai dipanggil</p>
             <p>Terima kasih telah memilih kami</p>
             <p>
               Tanggal ${new Date().toLocaleDateString("id-ID", {

@@ -47,6 +47,7 @@ app.use("/api/audio", audioRoutes);
 
 require("./sockets/antrianSocket")(io);
 require("./sockets/audioSocket")(io);
+require("./sockets/printSocket")(io);
 
 cron.schedule("0 0 * * *", () => {
   const currentTime = new Date().toLocaleString("id-ID", {
