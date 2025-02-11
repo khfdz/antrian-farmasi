@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import Navbar from "../components/Navbar";
@@ -40,94 +40,71 @@ const PagePrint = () => {
     }
   };
 
-  // Handle antrian update
+  // Fungsi handleAntrian yang hilang
   const handleAntrian = async (jenis) => {
     try {
       const endpoint = `http://${localAccess}/api/antrian/${jenis}`;
-
-      const response = await axios.post(
-        endpoint,
-        {},
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      const data = response.data; // Respons data akan berada di response.data
-      console.log(`Antrian ditambahkan untuk ${jenis}:`, data);
-
-      // Tentukan room berdasarkan jenis
+      const response = await axios.post(endpoint, {}, {
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      const data = response.data;
+      console.log(`🔵 [handleAntrian] Antrian ditambahkan untuk ${jenis}:`, data);
+  
       let roomName;
       if (jenis === "bpjs/obat-racikan") {
+        setLatestBpjsRacikan(data.no_antrian);
         roomName = "bpjs-obat-racikan";
       } else if (jenis === "bpjs/obat-jadi") {
+        setLatestBpjsJadi(data.no_antrian);
         roomName = "bpjs-obat-jadi";
       } else if (jenis === "obat-racikan") {
+        setLatestRacikan(data.no_antrian);
         roomName = "obat-racikan";
       } else if (jenis === "obat-jadi") {
+        setLatestJadi(data.no_antrian);
         roomName = "obat-jadi";
       }
-
-      // Kirim ke room yang tepat
-      socket.emit("sendAntrianUpdate", {
-        room: roomName,
-        antrianNumber: data.no_antrian,
+  
+      console.log(`🚀 [handleAntrian] Menunggu update dari PageView untuk ${roomName}`);
+  
+      // Emit ke socket untuk update antrian
+      socket.emit("sendQueueUpdate", {
+        section: roomName,
+        queueNumber: data.no_antrian,
       });
-
-      switch (jenis) {
-        case "bpjs/obat-racikan":
-          setLatestBpjsRacikan(data.no_antrian);
-          break;
-        case "bpjs/obat-jadi":
-          setLatestBpjsJadi(data.no_antrian);
-          break;
-        case "obat-racikan":
-          setLatestRacikan(data.no_antrian);
-          break;
-        case "obat-jadi":
-          setLatestJadi(data.no_antrian);
-          break;
-        default:
-          console.error("Jenis tidak dikenali");
-          break;
-      }
-
-      fetchInitialData();
+  
+      return data.no_antrian; // Kembalikan nilai terbaru
+  
     } catch (error) {
-      console.error(`Error adding antrian for ${jenis}:`, error);
+      console.error(`❌ [handleAntrian] Error menambah antrian untuk ${jenis}:`, error);
     }
   };
 
   useEffect(() => {
-    fetchInitialData(); // Ambil data awal saat komponen mount
+    fetchInitialData(); // Panggil fetchInitialData untuk mendapatkan data saat halaman pertama kali dimuat
 
-    socket.emit("joinRoom", "antrian-room");
+    socket.emit("joinRoom", "printRoom"); // Gabung ke room khusus print
 
-    socket.on("receiveQueueUpdate", ({ section, queueNumber }) => {
-      console.log(`Update antrian diterima untuk ${section}: ${queueNumber}`);
+    // Dengarkan update dari PageView
+    socket.on("updatePagePrint", ({ room, antrianNumber }) => {
+      console.log(`📥 [PagePrint] Update diterima dari PageView: ${room} - ${antrianNumber}`);
 
-      // Pastikan hanya update jika queueNumber baru berbeda
-      if (
-        section === "bpjs-obat-racikan" &&
-        queueNumber !== latestBpjsRacikan
-      ) {
-        setLatestBpjsRacikan(queueNumber);
-      } else if (
-        section === "bpjs-obat-jadi" &&
-        queueNumber !== latestBpjsJadi
-      ) {
-        setLatestBpjsJadi(queueNumber);
-      } else if (section === "obat-racikan" && queueNumber !== latestRacikan) {
-        setLatestRacikan(queueNumber);
-      } else if (section === "obat-jadi" && queueNumber !== latestJadi) {
-        setLatestJadi(queueNumber);
+      if (room === "bpjs-obat-jadi") {
+        setLatestBpjsJadi(antrianNumber);
+      } else if (room === "bpjs-obat-racikan") {
+        setLatestBpjsRacikan(antrianNumber);
+      } else if (room === "obat-jadi") {
+        setLatestJadi(antrianNumber);
+      } else if (room === "obat-racikan") {
+        setLatestRacikan(antrianNumber);
       }
     });
 
     return () => {
-      socket.off("receiveQueueUpdate"); // Bersihkan listener saat unmount
+      socket.off("updatePagePrint"); // Bersihkan listener saat komponen di-unmount
     };
-  }, [latestBpjsRacikan, latestBpjsJadi, latestRacikan, latestJadi]);
+  }, []);
 
   const formatWIBTime = () => {
     const date = new Date();
@@ -222,12 +199,12 @@ const PagePrint = () => {
             label: "Obat Non Racikan",
             color: "bg-biru1",
             prefix: "A",
-            button: () => {
-              handleAntrian("bpjs/obat-jadi");
+            button: async () => {
+              const newQueue = await handleAntrian("bpjs/obat-jadi");
               handlePrint(
                 {
                   section: "A",
-                  queueNumber: latestBpjsJadi,
+                  queueNumber: newQueue,
                 },
                 "Obat Non Racikan"
               );
@@ -237,12 +214,12 @@ const PagePrint = () => {
             label: "Obat Racikan",
             color: "bg-biru1",
             prefix: "B",
-            button: () => {
-              handleAntrian("bpjs/obat-racikan");
+            button: async () => {
+              const newQueue = await handleAntrian("bpjs/obat-racikan");
               handlePrint(
                 {
                   section: "B",
-                  queueNumber: latestBpjsRacikan,
+                  queueNumber: newQueue,
                 },
                 "Obat Racikan"
               );
@@ -252,12 +229,12 @@ const PagePrint = () => {
             label: "Obat Non Racikan",
             color: "bg-hijau1",
             prefix: "C",
-            button: () => {
-              handleAntrian("obat-jadi");
+            button: async () => {
+              const newQueue = await handleAntrian("obat-jadi");
               handlePrint(
                 {
                   section: "C",
-                  queueNumber: latestJadi,
+                  queueNumber: newQueue,
                 },
                 "Obat Non Racikan"
               );
@@ -267,12 +244,12 @@ const PagePrint = () => {
             label: "Obat Racikan",
             color: "bg-hijau1",
             prefix: "D",
-            button: () => {
-              handleAntrian("obat-racikan");
+            button: async () => {
+              const newQueue = await handleAntrian("obat-racikan");
               handlePrint(
                 {
                   section: "D",
-                  queueNumber: latestRacikan,
+                  queueNumber: newQueue,
                 },
                 "Obat Racikan"
               );
