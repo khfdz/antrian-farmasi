@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import axios from "axios";
 import Swal from "sweetalert2"; // Import SweetAlert2
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Footer from "../components/FooterAdm";
 
 const localAccess = import.meta.env.VITE_NETWORK;
 const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend

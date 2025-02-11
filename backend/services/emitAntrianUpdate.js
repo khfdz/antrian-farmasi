@@ -9,8 +9,7 @@ const emitAntrianUpdate = (io) => {
         return;
       }
 
-      const lastNoAntrianBpjsRacikan =
-        results[0]?.last_no_antrian_bpjs_racikan || 0;
+      const lastNoAntrianBpjsRacikan = results[0]?.last_no_antrian_bpjs_racikan || 0;
       const lastNoAntrianBpjsJadi = results[0]?.last_no_antrian_bpjs_jadi || 0;
       const lastNoAntrianRacikan = results[0]?.last_no_antrian_racikan || 0;
       const lastNoAntrianJadi = results[0]?.last_no_antrian_jadi || 0;
