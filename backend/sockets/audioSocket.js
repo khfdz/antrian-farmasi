@@ -14,6 +14,11 @@ module.exports = (io) => {
       io.to("callRoom").emit("playCallAudio", data);
     });
 
+    socket.on("updateQueueView", (data) => {
+      console.log("Update queue view:", data);
+      io.emit("updateCallQueue", data);
+    });
+
     socket.on("disconnect", () => {
       console.log("Client disconnected from audio:", socket.id);
     });

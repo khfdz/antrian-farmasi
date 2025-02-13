@@ -56,12 +56,29 @@ const PageCall = () => {
         category, // Kategori yang diterima (misalnya bpjs/obat-racikan)
         type, // Hanya 'racikan' atau 'non-racikan'
       });
+
       console.log("Panggilan dikirim:", {
         letter: section, // Ganti section dengan letter
         number: no_antrian, // Ganti queueNumber dengan number
         loket,
         category,
         type,
+      });
+    }
+  };
+
+  const updateCallQueue = (data, section, loket, category, type) => {
+    if (data) {
+      const { no_antrian } = data;
+
+      socket.emit("updateQueueView", {
+        no_antrian,
+        section,
+      });
+
+      console.log("Data dikirim ke view", {
+        no_antrian,
+        section,
       });
     }
   };
@@ -140,6 +157,16 @@ const PageCall = () => {
       setJadiData(await fetchQueueData("obat-jadi"));
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    socket.on("updateCallQueue", (data) => {
+      console.log("📥 [PageCall] Menerima updateCallQueue:", data);
+    });
+
+    return () => {
+      socket.off("updateCallQueue");
+    };
   }, []);
 
   return (
@@ -227,6 +254,7 @@ const PageCall = () => {
                     onClick={() => {
                       updateQueueStatus(data.id_antrian, category);
                       disableButtonsTemporarily(); // Menonaktifkan tombol sementara
+                      updateCallQueue(data, section, loket, category, type);
                     }}
                     disabled={disabledButtons.nextQueue}
                     className={`bg-red-500 p-2 text-white rounded-md ${

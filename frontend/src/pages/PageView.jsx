@@ -48,7 +48,7 @@ const PageView = () => {
 
   useEffect(() => {
     playAudioSequence();
-  }, [audioQueue]); 
+  }, [audioQueue]);
 
   const handlePlayCallAudio = async (data) => {
     console.log("Menerima data untuk memutar audio:", data);
@@ -69,11 +69,12 @@ const PageView = () => {
       if (audioSequence && Array.isArray(audioSequence)) {
         setAudioQueue((prevQueue) => [...prevQueue, ...audioSequence]);
 
-        const colorClass = data.letter === "A" || data.letter === "B" ? "bg-biru1" : "bg-hijau1";
+        const colorClass =
+          data.letter === "A" || data.letter === "B" ? "bg-biru1" : "bg-hijau1";
 
         Swal.fire({
           icon: "info",
-          iconColor: '#FF5733',
+          iconColor: "#FF5733",
           html: `
  <div class="flex flex-col items-center justify-center text-center p-6 w-full max-w-[100%]">
             <span class="text-4xl font-bold text-gray-700 mb-6 animate-fade-in whitespace-nowrap">
@@ -120,6 +121,21 @@ const PageView = () => {
     };
   }, []);
 
+  useEffect(() => {
+    // Tangkap event updateCallQueue dari server
+    socket.on("updateCallQueue", (data) => {
+      console.log("📥 [PageView] Menerima updateCallQueue:", data);
+
+      // Kirimkan kembali ke PagePrint
+      socket.emit("forwardCallQueue", data);
+      console.log("📤 [PageView] Meneruskan updateCallQueue ke PageCall", data);
+    });
+
+    return () => {
+      socket.off("updateCallQueue");
+    };
+  }, []);
+
   const fetchInitialData = async () => {
     try {
       const urls = [
@@ -148,83 +164,115 @@ const PageView = () => {
 
   useEffect(() => {
     fetchInitialData();
-  
+
     socket.emit("joinRoom", "bpjs-obat-racikan");
     socket.emit("joinRoom", "bpjs-obat-jadi");
     socket.emit("joinRoom", "obat-racikan");
     socket.emit("joinRoom", "obat-jadi");
-  
+
     const socketEvents = [
       { event: "antrianUpdated-bpjs-obat-racikan", setter: setBpjsRacikanData },
       { event: "antrianUpdated-bpjs-obat-jadi", setter: setBpjsJadiData },
       { event: "antrianUpdated-obat-racikan", setter: setRacikanData },
       { event: "antrianUpdated-obat-jadi", setter: setJadiData },
     ];
-  
+
     socketEvents.forEach(({ event, setter }) => {
       socket.on(event, (data) => {
-        console.log(`📡 [PageView] Menerima update dari server (${event}):`, data);
+        console.log(
+          `📡 [PageView] Menerima update dari server (${event}):`,
+          data
+        );
         setter(data.antrianNumber);
-    
+
         // Kirim update ke semua PagePrint
         socket.emit("updatePagePrint", {
           room: event.replace("antrianUpdated-", ""), // Ambil nama room dari event
           antrianNumber: data.antrianNumber,
         });
-    
-        console.log(`📤 [PageView] Mengirim update ke PagePrint: ${event.replace("antrianUpdated-", "")} - ${data.antrianNumber}`);
+
+        console.log(
+          `📤 [PageView] Mengirim update ke PagePrint: ${event.replace(
+            "antrianUpdated-",
+            ""
+          )} - ${data.antrianNumber}`
+        );
       });
     });
-    
-    
-  
+
     // Tambahkan event listener untuk receiveQueueUpdate
-// Tambahkan event listener untuk receiveQueueUpdate
-socket.on("receiveQueueUpdate", ({ section, queueNumber }) => {
-  console.log(`📥 [PageView] Update diterima: ${section} - ${queueNumber}`);
+    // Tambahkan event listener untuk receiveQueueUpdate
+    socket.on("receiveQueueUpdate", ({ section, queueNumber }) => {
+      console.log(`📥 [PageView] Update diterima: ${section} - ${queueNumber}`);
 
-  if (section === "bpjs-obat-jadi") {
-    setBpjsJadiData(queueNumber);
-  } else if (section === "bpjs-obat-racikan") {
-    setBpjsRacikanData(queueNumber);
-  } else if (section === "obat-jadi") {
-    setJadiData(queueNumber);
-  } else if (section === "obat-racikan") {
-    setRacikanData(queueNumber);
-  }
-});
+      if (section === "bpjs-obat-jadi") {
+        setBpjsJadiData(queueNumber);
+      } else if (section === "bpjs-obat-racikan") {
+        setBpjsRacikanData(queueNumber);
+      } else if (section === "obat-jadi") {
+        setJadiData(queueNumber);
+      } else if (section === "obat-racikan") {
+        setRacikanData(queueNumber);
+      }
+    });
 
-// Tambahkan event listener untuk queueUpdate
-socket.on("queueUpdate", ({ section, queueNumber }) => {
-  console.log(`📥 [PageView] Update diterima: ${section} - ${queueNumber}`);
+    // Tambahkan event listener untuk queueUpdate
+    socket.on("queueUpdate", ({ section, queueNumber }) => {
+      console.log(`📥 [PageView] Update diterima: ${section} - ${queueNumber}`);
 
-  if (section === "bpjs-obat-jadi") {
-    setBpjsJadiData(queueNumber);
-  } else if (section === "bpjs-obat-racikan") {
-    setBpjsRacikanData(queueNumber);
-  } else if (section === "obat-jadi") {
-    setJadiData(queueNumber);
-  } else if (section === "obat-racikan") {
-    setRacikanData(queueNumber);
-  }
+      if (section === "bpjs-obat-jadi") {
+        setBpjsJadiData(queueNumber);
+      } else if (section === "bpjs-obat-racikan") {
+        setBpjsRacikanData(queueNumber);
+      } else if (section === "obat-jadi") {
+        setJadiData(queueNumber);
+      } else if (section === "obat-racikan") {
+        setRacikanData(queueNumber);
+      }
 
-  // Kirim update balik ke PagePrint
-  socket.emit("updatePagePrint", {
-    room: section,
-    antrianNumber: queueNumber,
-  });
+      socket.on("refreshQueueView", ({ no_antrian, section }) => {
+        console.log(
+          `📥 [PageView] Menerima refreshQueueView: ${section} - ${no_antrian}`
+        );
 
-  console.log(`📤 [PageView] Mengirim update ke PagePrint: ${section} - ${queueNumber}`);
-});
+        if (section === "bpjs-obat-jadi") {
+          setBpjsJadiData(no_antrian);
+        } else if (section === "bpjs-obat-racikan") {
+          setBpjsRacikanData(no_antrian);
+        } else if (section === "obat-jadi") {
+          setJadiData(no_antrian);
+        } else if (section === "obat-racikan") {
+          setRacikanData(no_antrian);
+        }
 
+        // Kirim update ke PagePrint.js
+        socket.emit("updatePagePrint", {
+          room: section,
+          antrianNumber: no_antrian,
+        });
 
-  
+        console.log(
+          `📤 [PageView] Mengirim update ke PagePrint: ${section} - ${no_antrian}`
+        );
+      });
+
+      // Kirim update balik ke PagePrint
+      socket.emit("updatePagePrint", {
+        room: section,
+        antrianNumber: queueNumber,
+      });
+
+      console.log(
+        `📤 [PageView] Mengirim update ke PagePrint: ${section} - ${queueNumber}`
+      );
+    });
+
     return () => {
       socketEvents.forEach(({ event }) => socket.off(event));
       socket.off("receiveQueueUpdate"); // Hapus listener saat komponen di-unmount
+      socket.off("refreshQueueView");
     };
   }, []);
-  
 
   return (
     <div className="bg-gray-200 w-screen h-screen items-center justify-center flex">
