@@ -6,21 +6,22 @@ const Footer = () => {
       <motion.div
         className="whitespace-nowrap"
         animate={{
-          x: ["63%", "-100%"], // Mengatur pergerakan dari kanan ke kiri
+          x: ["63%", "-100%"],
+          // x: ["63%", "-100%"], // Mengatur pergerakan dari kanan ke kiri
         }}
         transition={{
           repeat: Infinity, // Ulangi animasi
-          duration: 130, // Atur durasi untuk kecepatan
+          duration: 300, // Atur durasi untuk kecepatan
           ease: "linear", // Gunakan easing linear agar pergerakannya rata
         }}>
         <span>
-          Visi kami adalah menjadi Rumah Sakit yang mengutamakan pelayanan
+          Visi kami adalah menjadi rumah sakit yang mengutamakan pelayanan
           kepada semua lapisan masyarakat melalui tenaga kerja yang terlatih dan
           profesional.
         </span>
 
         {/* Jeda sebelum Misi mulai muncul */}
-        <span className="inline-block w-32"></span>
+        <span className="inline-block w-28"></span>
 
         <span>
           Misi kami adalah mengembangkan potensi kerja secara keseluruhan demi
