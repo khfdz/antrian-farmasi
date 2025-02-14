@@ -44,13 +44,20 @@ const PagePrint = () => {
   const handleAntrian = async (jenis) => {
     try {
       const endpoint = `http://${localAccess}/api/antrian/${jenis}`;
-      const response = await axios.post(endpoint, {}, {
-        headers: { "Content-Type": "application/json" },
-      });
-  
+      const response = await axios.post(
+        endpoint,
+        {},
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       const data = response.data;
-      console.log(`🔵 [handleAntrian] Antrian ditambahkan untuk ${jenis}:`, data);
-  
+      console.log(
+        `🔵 [handleAntrian] Antrian ditambahkan untuk ${jenis}:`,
+        data
+      );
+
       let roomName;
       if (jenis === "bpjs/obat-racikan") {
         setLatestBpjsRacikan(data.no_antrian);
@@ -65,19 +72,23 @@ const PagePrint = () => {
         setLatestJadi(data.no_antrian);
         roomName = "obat-jadi";
       }
-  
-      console.log(`🚀 [handleAntrian] Menunggu update dari PageView untuk ${roomName}`);
-  
+
+      console.log(
+        `🚀 [handleAntrian] Menunggu update dari PageView untuk ${roomName}`
+      );
+
       // Emit ke socket untuk update antrian
       socket.emit("sendQueueUpdate", {
         section: roomName,
         queueNumber: data.no_antrian,
       });
-  
+
       return data.no_antrian; // Kembalikan nilai terbaru
-  
     } catch (error) {
-      console.error(`❌ [handleAntrian] Error menambah antrian untuk ${jenis}:`, error);
+      console.error(
+        `❌ [handleAntrian] Error menambah antrian untuk ${jenis}:`,
+        error
+      );
     }
   };
 
@@ -88,7 +99,9 @@ const PagePrint = () => {
 
     // Dengarkan update dari PageView
     socket.on("updatePagePrint", ({ room, antrianNumber }) => {
-      console.log(`📥 [PagePrint] Update diterima dari PageView: ${room} - ${antrianNumber}`);
+      console.log(
+        `📥 [PagePrint] Update diterima dari PageView: ${room} - ${antrianNumber}`
+      );
 
       if (room === "bpjs-obat-jadi") {
         setLatestBpjsJadi(antrianNumber);
@@ -190,10 +203,10 @@ const PagePrint = () => {
   };
 
   return (
-    <div className="bg-gray-200 w-screen h-screen items-center justify-center flex">
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center flex">
       <Navbar />
 
-      <div className="pr-4 pl-4 space-between flex gap-12 ">
+      <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
         {[
           {
             label: "Obat Non Racikan",

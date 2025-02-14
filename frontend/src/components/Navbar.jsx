@@ -25,10 +25,8 @@ const Navbar = () => {
 
         <button
           onClick={handleFullscreen}
-          className="absolute right-12 bg-hijau1 text-hijau1 p-2 hover:bg-biru1 hover:text-white rounded-md">
-          {document.fullscreenElement
-            ? "Keluar dari Fullscreen"
-            : "Masuk ke Fullscreen"}
+          className="absolute right-4 md:right-12 bg-hijau1 text-hijau1 p-2 hover:bg-biru1 hover:text-white rounded-md">
+          {document.fullscreenElement ? "Keluar dari Fullscreen" : "Full"}
         </button>
       </div>
     </nav>

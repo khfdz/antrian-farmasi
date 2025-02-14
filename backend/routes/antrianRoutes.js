@@ -23,6 +23,8 @@ const {
   getAntrianObatJadiLatest,
   getAllAntrianObatJadiByStatus,
   ubahStatusAntrianObatJadi,
+
+  resetAntrian,
 } = require("../controllers/antrianController");
 
 const router = express.Router();
@@ -50,5 +52,7 @@ router.get("/obat-jadi", getAllAntrianObatJadi);
 router.get("/obat-jadi/latest", getAntrianObatJadiLatest);
 router.get("/obat-jadi/:status", getAllAntrianObatJadiByStatus);
 router.patch("/obat-jadi/:id/status", ubahStatusAntrianObatJadi);
+
+router.delete("/reset", resetAntrian);
 
 module.exports = router;

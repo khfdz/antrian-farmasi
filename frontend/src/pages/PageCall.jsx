@@ -160,8 +160,14 @@ const PageCall = () => {
   }, []);
 
   useEffect(() => {
-    socket.on("updateCallQueue", (data) => {
+    socket.on("updateCallQueue", async (data) => {
       console.log("📥 [PageCall] Menerima updateCallQueue:", data);
+
+      // Ambil data terbaru dari server setelah menerima update dari PageView
+      setBpjsRacikanData(await fetchQueueData("bpjs/obat-racikan"));
+      setBpjsJadiData(await fetchQueueData("bpjs/obat-jadi"));
+      setRacikanData(await fetchQueueData("obat-racikan"));
+      setJadiData(await fetchQueueData("obat-jadi"));
     });
 
     return () => {
@@ -170,9 +176,9 @@ const PageCall = () => {
   }, []);
 
   return (
-    <div className="bg-gray-200 w-screen h-screen items-center justify-center flex">
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center flex">
       <Navbar />
-      <div className="pr-4 pl-4 space-between flex gap-12 ">
+      <div className="md:mt-22 mt-24 mb-28 px-12 py-4 flex flex-wrap gap-6 w-full justify-center items-cente">
         {[
           {
             label: "Obat Non Racikan",

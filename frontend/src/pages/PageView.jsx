@@ -37,7 +37,7 @@ const PageView = () => {
         });
 
         // Tambahkan delay 500ms sebelum memutar audio berikutnya
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await new Promise((resolve) => setTimeout(resolve, 0));
       } catch (error) {
         console.error("Gagal memutar audio:", error);
       }
@@ -275,10 +275,10 @@ const PageView = () => {
   }, []);
 
   return (
-    <div className="bg-gray-200 w-screen h-screen items-center justify-center flex">
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center flex">
       <Navbar />
 
-      <div className="pr-4 pl-4 space-between flex gap-12 ">
+      <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
         {[
           {
             label: "Obat Non Racikan",
@@ -307,7 +307,7 @@ const PageView = () => {
         ].map(({ label, data, color, prefix }, index) => (
           <div
             key={index}
-            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>
+            className={`${color} w-full w-[29.5vh] md:w-[35vh] h-auto text-center rounded-md shadow-xl`}>
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center shadow-xl">
               {prefix} {data !== null ? data : "Memuat..."}

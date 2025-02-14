@@ -10,7 +10,7 @@ const Footer = () => {
         }}
         transition={{
           repeat: Infinity,
-          duration: 20,
+          duration: 30,
           ease: "linear",
         }}>
         <span>Kalo cape istirahat dulu yaa</span>

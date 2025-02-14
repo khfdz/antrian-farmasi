@@ -444,6 +444,77 @@ const ubahStatusAntrianObatJadi = (req, res) => {
   );
 };
 //----------------------------------------------ANTRIAN OBAT JADI--------------------------------------------//
+const resetAntrian = (req, res) => {
+  db.query("START TRANSACTION", (err) => {
+    if (err) {
+      console.error("Error starting transaction:", err);
+      return res.status(500).json({ message: "Transaction error" });
+    }
+
+    // Reset semua kolom di antrian_counter menjadi 0
+    db.query(
+      `UPDATE antrian_counter 
+      SET 
+        last_no_antrian = 0, 
+        last_no_antrian_bpjs_jadi = 0, 
+        last_no_antrian_bpjs_racikan = 0, 
+        last_no_antrian_racikan = 0, 
+        last_no_antrian_jadi = 0,
+        updated_at = NOW()
+      WHERE id = 1`,
+      (err) => {
+        if (err) {
+          console.error("Error resetting antrian_counter:", err);
+          return db.query("ROLLBACK", () => {
+            res
+              .status(500)
+              .json({ message: "Failed to reset antrian_counter" });
+          });
+        }
+
+        // Reset semua nomor antrian di tabel antrian
+        const tables = [
+          "antrian_bpjs_obat_racikan",
+          "antrian_bpjs_obat_jadi",
+          "antrian_obat_racikan",
+          "antrian_obat_jadi",
+        ];
+
+        let resetPromises = tables.map((table) => {
+          return new Promise((resolve, reject) => {
+            db.query(`UPDATE ${table} SET no_antrian = 0`, (err) => {
+              if (err) {
+                console.error(`Error resetting no_antrian in ${table}:`, err);
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          });
+        });
+
+        Promise.all(resetPromises)
+          .then(() => {
+            db.query("COMMIT", (err) => {
+              if (err) {
+                console.error("Error committing transaction:", err);
+                return res.status(500).json({ message: "Commit failed" });
+              }
+              res
+                .status(200)
+                .json({ message: "Queue and counter reset successfully!" });
+            });
+          })
+          .catch(() => {
+            db.query("ROLLBACK");
+            res
+              .status(500)
+              .json({ message: "Failed to reset some queue data" });
+          });
+      }
+    );
+  });
+};
 
 module.exports = {
   //-----------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//
@@ -477,4 +548,6 @@ module.exports = {
   getAllAntrianObatJadiByStatus,
   ubahStatusAntrianObatJadi,
   //-----------------------------------------------ANTRIAN OBAT JADI-----------------------------------//
+
+  resetAntrian,
 };
