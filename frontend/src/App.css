@@ -1,53 +1,9 @@
-/* #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-} */
 
 @media print {
-  /* Sembunyikan semua elemen selain yang ingin dicetak */
   body * {
     visibility: hidden;
   }
 
-  /* Tampilkan hanya #jadi-section */
   #jadi-section, #jadi-section * {
     visibility: visible;
   }
@@ -56,17 +12,15 @@
     display: none;
   }
 
-  /* Posisikan #jadi-section di tengah halaman cetak */
   #jadi-section {
     position: absolute;
-    top: 50%;  /* Posisikan dari atas 50% */
-    left: 50%; /* Posisikan dari kiri 50% */
-    transform: translate(-50%, -50%); /* Geser elemen ke tengah-tengah halaman */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
-  /* Mengatur margin dan padding kertas agar tidak ada ruang yang terbuang */
   @page {
     margin: 0;
-    size: A4; /* Ukuran kertas A4 */
+    size: A4;
   }
 }

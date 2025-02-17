@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import axios from "axios";
+import Swal from "sweetalert2";
 import Navbar from "../components/Navbar";
 import Footer from "../components/FooterAdm";
 
@@ -30,17 +31,11 @@ const PagePrint = () => {
       setLatestBpjsJadi(responses[1].data.no_antrian);
       setLatestRacikan(responses[2].data.no_antrian);
       setLatestJadi(responses[3].data.no_antrian);
-
-      console.log(
-        "Data awal diambil:",
-        responses.map((res) => res.data)
-      );
     } catch (error) {
       console.error("Error loading initial data:", error);
     }
   };
 
-  // Fungsi handleAntrian yang hilang
   const handleAntrian = async (jenis) => {
     try {
       const endpoint = `http://${localAccess}/api/antrian/${jenis}`;
@@ -53,10 +48,6 @@ const PagePrint = () => {
       );
 
       const data = response.data;
-      console.log(
-        `🔵 [handleAntrian] Antrian ditambahkan untuk ${jenis}:`,
-        data
-      );
 
       let roomName;
       if (jenis === "bpjs/obat-racikan") {
@@ -73,17 +64,12 @@ const PagePrint = () => {
         roomName = "obat-jadi";
       }
 
-      console.log(
-        `🚀 [handleAntrian] Menunggu update dari PageView untuk ${roomName}`
-      );
-
-      // Emit ke socket untuk update antrian
       socket.emit("sendQueueUpdate", {
         section: roomName,
         queueNumber: data.no_antrian,
       });
 
-      return data.no_antrian; // Kembalikan nilai terbaru
+      return data.no_antrian; 
     } catch (error) {
       console.error(
         `❌ [handleAntrian] Error menambah antrian untuk ${jenis}:`,
@@ -93,15 +79,11 @@ const PagePrint = () => {
   };
 
   useEffect(() => {
-    fetchInitialData(); // Panggil fetchInitialData untuk mendapatkan data saat halaman pertama kali dimuat
+    fetchInitialData();
 
-    socket.emit("joinRoom", "printRoom"); // Gabung ke room khusus print
+    socket.emit("joinRoom", "printRoom");
 
-    // Dengarkan update dari PageView
     socket.on("updatePagePrint", ({ room, antrianNumber }) => {
-      console.log(
-        `📥 [PagePrint] Update diterima dari PageView: ${room} - ${antrianNumber}`
-      );
 
       if (room === "bpjs-obat-jadi") {
         setLatestBpjsJadi(antrianNumber);
@@ -115,9 +97,34 @@ const PagePrint = () => {
     });
 
     return () => {
-      socket.off("updatePagePrint"); // Bersihkan listener saat komponen di-unmount
+      socket.off("updatePagePrint"); 
     };
   }, []);
+
+  useEffect(() => {
+    socket.on("queueReset", () => {
+
+      Swal.fire({
+        title: "Antrian Direset!",
+        text: "Seluruh antrian telah direset oleh sistem.",
+        icon: "info",
+        confirmButtonText: "OK",
+        timer: "5000",
+      });
+
+      const fetchData = async () => {
+        latestBpjsRacikan(await fetchInitialData("bpjs/obat-racikan"));
+        latestBpjsJadi(await fetchInitialData("bpjs/obat-jadi"));
+        latestRacikan(await fetchInitialData("obat-racikan"));
+        latestJadi(await fetchInitialData("obat-jadi"));
+      };
+      fetchData();
+    });
+
+    return () => {
+      socket.off("queueReset");
+    };
+  });
 
   const formatWIBTime = () => {
     const date = new Date();
@@ -129,13 +136,7 @@ const PagePrint = () => {
   const handlePrint = (data, sectionTitle) => {
     const timeWIB = formatWIBTime();
 
-    // Emit update lebih dulu biar cepat sampai ke socket
     socket.emit("sendQueueUpdate", {
-      section: data.section,
-      queueNumber: data.queueNumber,
-    });
-
-    console.log("Nomor antrian dikirim ke socket:", {
       section: data.section,
       queueNumber: data.queueNumber,
     });
@@ -203,7 +204,7 @@ const PagePrint = () => {
   };
 
   return (
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center flex">
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
       <Navbar />
 
       <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
@@ -271,7 +272,8 @@ const PagePrint = () => {
         ].map(({ label, color, prefix, button }, index) => (
           <div
             key={index}
-            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>
+            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}
+          >
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center">
               {prefix}{" "}
@@ -287,12 +289,13 @@ const PagePrint = () => {
                   ? latestJadi
                   : prefix === "D"
                   ? latestRacikan
-                  : "Memuat..."
-                : "Memuat..."}
+                  : "0"
+                : "0"}
             </p>
             <button
               onClick={button}
-              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl">
+              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl"
+            >
               Cetak Antrian
             </button>
           </div>

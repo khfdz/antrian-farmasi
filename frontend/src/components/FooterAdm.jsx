@@ -12,7 +12,8 @@ const Footer = () => {
           repeat: Infinity,
           duration: 30,
           ease: "linear",
-        }}>
+        }}
+      >
         <span>Kalo cape istirahat dulu yaa</span>
       </motion.div>
     </div>

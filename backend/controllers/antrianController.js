@@ -65,7 +65,6 @@ const getAntrianBpjsObatRacikanLatest = (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (result.length > 0) {
-        console.log("Database result:", result[0]);
         res.status(200).json(result[0]);
       } else {
         res.status(404).json({ message: "No antrian found" });
@@ -176,7 +175,6 @@ const getAntrianBpjsObatJadiLatest = (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (result.length > 0) {
-        console.log("Database result:", result[0]);
         res.status(200).json(result[0]);
       } else {
         res.status(404).json({ message: "No antrian found" });
@@ -287,7 +285,6 @@ const getAntrianObatRacikanLatest = (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (result.length > 0) {
-        console.log("Database result:", result[0]);
         res.status(200).json(result[0]);
       } else {
         res.status(404).json({ message: "No antrian found" });
@@ -398,7 +395,6 @@ const getAntrianObatJadiLatest = (req, res) => {
         return res.status(500).json({ error: err.message });
       }
       if (result.length > 0) {
-        console.log("Database result:", result[0]);
         res.status(200).json(result[0]);
       } else {
         res.status(404).json({ message: "No antrian found" });
@@ -444,6 +440,8 @@ const ubahStatusAntrianObatJadi = (req, res) => {
   );
 };
 //----------------------------------------------ANTRIAN OBAT JADI--------------------------------------------//
+
+//-------------------------------------------------RESET DATABASE--------------------------------------------//
 const resetAntrian = (req, res) => {
   db.query("START TRANSACTION", (err) => {
     if (err) {
@@ -451,7 +449,6 @@ const resetAntrian = (req, res) => {
       return res.status(500).json({ message: "Transaction error" });
     }
 
-    // Reset semua kolom di antrian_counter menjadi 0
     db.query(
       `UPDATE antrian_counter 
       SET 
@@ -466,13 +463,10 @@ const resetAntrian = (req, res) => {
         if (err) {
           console.error("Error resetting antrian_counter:", err);
           return db.query("ROLLBACK", () => {
-            res
-              .status(500)
-              .json({ message: "Failed to reset antrian_counter" });
+            res.status(500).json({ message: "Failed to reset antrian_counter" });
           });
         }
 
-        // Reset semua nomor antrian di tabel antrian
         const tables = [
           "antrian_bpjs_obat_racikan",
           "antrian_bpjs_obat_jadi",
@@ -480,11 +474,11 @@ const resetAntrian = (req, res) => {
           "antrian_obat_jadi",
         ];
 
-        let resetPromises = tables.map((table) => {
+        let deletePromises = tables.map((table) => {
           return new Promise((resolve, reject) => {
-            db.query(`UPDATE ${table} SET no_antrian = 0`, (err) => {
+            db.query(`DELETE FROM ${table}`, (err) => {
               if (err) {
-                console.error(`Error resetting no_antrian in ${table}:`, err);
+                console.error(`Error deleting data in ${table}:`, err);
                 reject(err);
               } else {
                 resolve();
@@ -493,28 +487,25 @@ const resetAntrian = (req, res) => {
           });
         });
 
-        Promise.all(resetPromises)
+        Promise.all(deletePromises)
           .then(() => {
             db.query("COMMIT", (err) => {
               if (err) {
                 console.error("Error committing transaction:", err);
                 return res.status(500).json({ message: "Commit failed" });
               }
-              res
-                .status(200)
-                .json({ message: "Queue and counter reset successfully!" });
+              res.status(200).json({ message: "Queue and counter reset successfully!" });
             });
           })
           .catch(() => {
             db.query("ROLLBACK");
-            res
-              .status(500)
-              .json({ message: "Failed to reset some queue data" });
+            res.status(500).json({ message: "Failed to delete some queue data" });
           });
       }
     );
   });
 };
+//------------------------------------------------RESET DATABASE--------------------------------------------//
 
 module.exports = {
   //-----------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//
