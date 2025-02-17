@@ -6,26 +6,21 @@ function generateAudioSequence(params, isRecursive = false) {
 
   if (bell) sequence.push(audioFiles.bell);
 
-  // Tambahkan Racikan atau Non-Racikan hanya jika bukan rekursi
   if (!isRecursive) {
     sequence.push(
       type === "racikan" ? audioFiles.racikan : audioFiles.non_racikan
     );
   }
 
-  // No Antrian setelah Racikan/Non-Racikan
   if (noAntrian) sequence.push(audioFiles.no_antrian);
 
   if (audioFiles[letter]) {
     sequence.push(audioFiles[letter]);
   }
 
-  // Tangani angka khusus 100
   if (number === 100) {
     sequence.push(`/audio/100.mp3`);
-  }
-  // Tangani angka selain 100
-  else if (number <= 9) {
+  } else if (number <= 9) {
     sequence.push(`/audio/${number}.mp3`);
   } else if (number > 9 && number < 20) {
     sequence.push(`/audio/${number - 10}.mp3`);
@@ -56,7 +51,7 @@ function generateAudioSequence(params, isRecursive = false) {
             loket: "",
           },
           true
-        ) // **Set isRecursive = true untuk mencegah duplikasi**
+        )
       );
     }
   }

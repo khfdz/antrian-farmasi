@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import Navbar from "../components/Navbar";
@@ -13,19 +13,18 @@ const PageView = () => {
   const [bpjsJadiData, setBpjsJadiData] = useState(null);
   const [racikanData, setRacikanData] = useState(null);
   const [jadiData, setJadiData] = useState(null);
-  const [audioQueue, setAudioQueue] = useState([]); // Menyimpan antrian audio
-  const [isPlaying, setIsPlaying] = useState(false); // Status apakah audio sedang diputar
+  const [audioQueue, setAudioQueue] = useState([]);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const playAudioSequence = async () => {
     if (isPlaying || audioQueue.length === 0) return;
 
     setIsPlaying(true);
 
-    let queue = [...audioQueue]; // Ambil snapshot awal antrian
-    setAudioQueue([]); // Kosongkan antrian di state untuk menghindari loop
-
+    let queue = [...audioQueue];
+    setAudioQueue([]);
     for (const audioPath of queue) {
-      if (!audioPath) continue; // Lewati jika audioPath kosong
+      if (!audioPath) continue;
 
       const audio = new Audio(audioPath);
       audio.preload = "auto";
@@ -36,7 +35,6 @@ const PageView = () => {
           audio.onended = resolve;
         });
 
-        // Tambahkan delay 500ms sebelum memutar audio berikutnya
         await new Promise((resolve) => setTimeout(resolve, 0));
       } catch (error) {
         console.error("Gagal memutar audio:", error);
@@ -48,11 +46,33 @@ const PageView = () => {
 
   useEffect(() => {
     playAudioSequence();
-  }, [audioQueue]);
+  });
+
+  useEffect(() => {
+    socket.on("queueReset", () => {
+      Swal.fire({
+        title: "Antrian Direset!",
+        text: "Seluruh antrian telah direset oleh sistem.",
+        icon: "info",
+        confirmButtonText: "OK",
+        timer: "5000",
+      });
+
+      const fetchData = async () => {
+        bpjsRacikanData(await setBpjsRacikanData("bpjs/obat-racikan"));
+        bpjsJadiData(await setBpjsJadiData("bpjs/obat-jadi"));
+        racikanData(await setRacikanData("obat-racikan"));
+        jadiData(await setJadiData("obat-jadi"));
+      };
+      fetchData();
+    });
+
+    return () => {
+      socket.off("queueReset");
+    };
+  });
 
   const handlePlayCallAudio = async (data) => {
-    console.log("Menerima data untuk memutar audio:", data);
-
     try {
       const response = await axios.get(`http://${localAccess}/api/audio/call`, {
         params: {
@@ -64,7 +84,6 @@ const PageView = () => {
       });
 
       const audioSequence = response.data?.sequence;
-      console.log("Audio sequence diterima:", audioSequence); // Log untuk cek apakah sequence benar
 
       if (audioSequence && Array.isArray(audioSequence)) {
         setAudioQueue((prevQueue) => [...prevQueue, ...audioSequence]);
@@ -91,17 +110,12 @@ const PageView = () => {
             </span>
           </div>
           `,
-          showConfirmButton: false, // Menghilangkan tombol "OK"
-          timer: 19000, // Swal akan otomatis tertutup setelah 5 detik
+          showConfirmButton: false,
+          timer: 19000,
           customClass: {
-            popup: "bg-white shadow-lg rounded-lg p-6", // Styling box alert
+            popup: "bg-white shadow-lg rounded-lg p-6",
           },
         });
-
-        console.log("Antrian audio sekarang:", [
-          ...audioQueue,
-          ...audioSequence,
-        ]); // Debugging
       } else {
         console.error(
           "Audio sequence tidak ditemukan atau tidak valid:",
@@ -122,13 +136,8 @@ const PageView = () => {
   }, []);
 
   useEffect(() => {
-    // Tangkap event updateCallQueue dari server
     socket.on("updateCallQueue", (data) => {
-      console.log("📥 [PageView] Menerima updateCallQueue:", data);
-
-      // Kirimkan kembali ke PagePrint
       socket.emit("forwardCallQueue", data);
-      console.log("📤 [PageView] Meneruskan updateCallQueue ke PageCall", data);
     });
 
     return () => {
@@ -152,11 +161,6 @@ const PageView = () => {
       setBpjsJadiData(responses[1].data.no_antrian);
       setRacikanData(responses[2].data.no_antrian);
       setJadiData(responses[3].data.no_antrian);
-
-      console.log(
-        "Data awal diambil:",
-        responses.map((res) => res.data)
-      );
     } catch (error) {
       console.error("Error loading initial data:", error);
     }
@@ -179,32 +183,15 @@ const PageView = () => {
 
     socketEvents.forEach(({ event, setter }) => {
       socket.on(event, (data) => {
-        console.log(
-          `📡 [PageView] Menerima update dari server (${event}):`,
-          data
-        );
         setter(data.antrianNumber);
-
-        // Kirim update ke semua PagePrint
         socket.emit("updatePagePrint", {
-          room: event.replace("antrianUpdated-", ""), // Ambil nama room dari event
+          room: event.replace("antrianUpdated-", ""),
           antrianNumber: data.antrianNumber,
         });
-
-        console.log(
-          `📤 [PageView] Mengirim update ke PagePrint: ${event.replace(
-            "antrianUpdated-",
-            ""
-          )} - ${data.antrianNumber}`
-        );
       });
     });
 
-    // Tambahkan event listener untuk receiveQueueUpdate
-    // Tambahkan event listener untuk receiveQueueUpdate
     socket.on("receiveQueueUpdate", ({ section, queueNumber }) => {
-      console.log(`📥 [PageView] Update diterima: ${section} - ${queueNumber}`);
-
       if (section === "bpjs-obat-jadi") {
         setBpjsJadiData(queueNumber);
       } else if (section === "bpjs-obat-racikan") {
@@ -216,10 +203,7 @@ const PageView = () => {
       }
     });
 
-    // Tambahkan event listener untuk queueUpdate
     socket.on("queueUpdate", ({ section, queueNumber }) => {
-      console.log(`📥 [PageView] Update diterima: ${section} - ${queueNumber}`);
-
       if (section === "bpjs-obat-jadi") {
         setBpjsJadiData(queueNumber);
       } else if (section === "bpjs-obat-racikan") {
@@ -231,10 +215,6 @@ const PageView = () => {
       }
 
       socket.on("refreshQueueView", ({ no_antrian, section }) => {
-        console.log(
-          `📥 [PageView] Menerima refreshQueueView: ${section} - ${no_antrian}`
-        );
-
         if (section === "bpjs-obat-jadi") {
           setBpjsJadiData(no_antrian);
         } else if (section === "bpjs-obat-racikan") {
@@ -245,37 +225,26 @@ const PageView = () => {
           setRacikanData(no_antrian);
         }
 
-        // Kirim update ke PagePrint.js
         socket.emit("updatePagePrint", {
           room: section,
           antrianNumber: no_antrian,
         });
-
-        console.log(
-          `📤 [PageView] Mengirim update ke PagePrint: ${section} - ${no_antrian}`
-        );
       });
-
-      // Kirim update balik ke PagePrint
       socket.emit("updatePagePrint", {
         room: section,
         antrianNumber: queueNumber,
       });
-
-      console.log(
-        `📤 [PageView] Mengirim update ke PagePrint: ${section} - ${queueNumber}`
-      );
     });
 
     return () => {
       socketEvents.forEach(({ event }) => socket.off(event));
-      socket.off("receiveQueueUpdate"); // Hapus listener saat komponen di-unmount
+      socket.off("receiveQueueUpdate");
       socket.off("refreshQueueView");
     };
   }, []);
 
   return (
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center flex">
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
       <Navbar />
 
       <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
@@ -307,10 +276,11 @@ const PageView = () => {
         ].map(({ label, data, color, prefix }, index) => (
           <div
             key={index}
-            className={`${color} w-full w-[29.5vh] md:w-[35vh] h-auto text-center rounded-md shadow-xl`}>
+            className={`${color} w-[29.5vh] md:w-[35vh] h-auto text-center rounded-md shadow-xl`}
+          >
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center shadow-xl">
-              {prefix} {data !== null ? data : "Memuat..."}
+              {prefix} {data !== null ? data : "0"}
             </p>
           </div>
         ))}

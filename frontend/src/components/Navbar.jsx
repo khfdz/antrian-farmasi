@@ -1,15 +1,12 @@
-import React from "react";
 import logo from "../../public/image/logoPanjangAlamat.png";
 
 const Navbar = () => {
   const handleFullscreen = () => {
     if (!document.fullscreenElement) {
-      // Jika belum fullscreen, maka aktifkan fullscreen
       document.documentElement.requestFullscreen().catch((err) => {
         console.error("Gagal memasuki mode fullscreen:", err);
       });
     } else {
-      // Jika sudah fullscreen, maka keluar dari fullscreen
       document.exitFullscreen().catch((err) => {
         console.error("Gagal keluar dari fullscreen:", err);
       });
@@ -25,7 +22,8 @@ const Navbar = () => {
 
         <button
           onClick={handleFullscreen}
-          className="absolute right-4 md:right-12 bg-hijau1 text-hijau1 p-2 hover:bg-biru1 hover:text-white rounded-md">
+          className="absolute right-4 md:right-12 bg-hijau1 text-hijau1 p-2 hover:bg-biru1 hover:text-white rounded-md"
+        >
           {document.fullscreenElement ? "Keluar dari Fullscreen" : "Full"}
         </button>
       </div>

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import axios from "axios";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 import Navbar from "../components/Navbar";
 import Footer from "../components/FooterAdm";
 
 const localAccess = import.meta.env.VITE_NETWORK;
-const socket = io(`http://${localAccess}`); // Pastikan menghubungkan ke IP laptop backend
+const socket = io(`http://${localAccess}`);
 
 const PageCall = () => {
   const [bpjsRacikanData, setBpjsRacikanData] = useState(null);
@@ -20,7 +20,6 @@ const PageCall = () => {
     nextQueue: false,
   });
 
-  // Fungsi untuk mengambil data antrian dari API
   const fetchQueueData = async (type) => {
     try {
       const response = await axios.get(
@@ -48,18 +47,9 @@ const PageCall = () => {
     if (data) {
       const { no_antrian } = data;
 
-      // Kirim data ke socket dengan category dan type racikan/non-racikan
       socket.emit("triggerCallAudio", {
-        letter: section, // Ganti section dengan letter
-        number: no_antrian, // Ganti queueNumber dengan number
-        loket,
-        category, // Kategori yang diterima (misalnya bpjs/obat-racikan)
-        type, // Hanya 'racikan' atau 'non-racikan'
-      });
-
-      console.log("Panggilan dikirim:", {
-        letter: section, // Ganti section dengan letter
-        number: no_antrian, // Ganti queueNumber dengan number
+        letter: section,
+        number: no_antrian,
         loket,
         category,
         type,
@@ -67,16 +57,11 @@ const PageCall = () => {
     }
   };
 
-  const updateCallQueue = (data, section, loket, category, type) => {
+  const updateCallQueue = (data, section) => {
     if (data) {
       const { no_antrian } = data;
 
       socket.emit("updateQueueView", {
-        no_antrian,
-        section,
-      });
-
-      console.log("Data dikirim ke view", {
         no_antrian,
         section,
       });
@@ -88,12 +73,9 @@ const PageCall = () => {
       await axios.patch(
         `http://${localAccess}/api/antrian/${type}/${id}/status`
       );
-      console.log(`Status antrian dengan ID ${id} berhasil diperbarui.`);
 
-      // Ambil data terbaru setelah status diperbarui
       const updatedData = await fetchQueueData(type);
 
-      // Update state sesuai data yang diperoleh
       if (type === "bpjs/obat-racikan") setBpjsRacikanData(updatedData);
       if (type === "bpjs/obat-jadi") setBpjsJadiData(updatedData);
       if (type === "obat-racikan") setRacikanData(updatedData);
@@ -103,7 +85,6 @@ const PageCall = () => {
     }
   };
 
-  // Mengupdate status tombol disable untuk mencegah klik ganda
   const disableButtonsTemporarily = () => {
     setDisabledButtons({
       loket1: true,
@@ -111,7 +92,6 @@ const PageCall = () => {
       nextQueue: true,
     });
 
-    // Mengaktifkan tombol kembali setelah 2 detik
     setTimeout(() => {
       setDisabledButtons({
         loket1: false,
@@ -121,21 +101,17 @@ const PageCall = () => {
     }, 2000);
   };
 
-  // Fungsi untuk menampilkan notifikasi dan menonaktifkan tombol sementara
   const showNotification = (data, section, loket, category, type) => {
-    // Kirim panggilan antrian terlebih dahulu
     callQueue(data, section, loket, category, type);
 
-    // Tampilkan animasi menunggu
     Swal.fire({
       title: "Menunggu Panggilan Antrian...",
       text: `Antrian ${data.no_antrian} sedang dipanggil di loket ${loket}`,
       icon: "info",
       showConfirmButton: false,
       allowOutsideClick: false,
-      timer: 16000, // Waktu animasi 3 detik
+      timer: 16000,
     }).then(() => {
-      // Setelah animasi selesai, tampilkan notifikasi sukses
       Swal.fire({
         title: "Antrian Selesai Dipanggil!",
         text: `Antrian ${data.no_antrian} telah dipanggil di loket ${loket}`,
@@ -145,7 +121,6 @@ const PageCall = () => {
       });
     });
 
-    // Menonaktifkan tombol sementara
     disableButtonsTemporarily();
   };
 
@@ -160,10 +135,7 @@ const PageCall = () => {
   }, []);
 
   useEffect(() => {
-    socket.on("updateCallQueue", async (data) => {
-      console.log("📥 [PageCall] Menerima updateCallQueue:", data);
-
-      // Ambil data terbaru dari server setelah menerima update dari PageView
+    socket.on("updateCallQueue", async () => {
       setBpjsRacikanData(await fetchQueueData("bpjs/obat-racikan"));
       setBpjsJadiData(await fetchQueueData("bpjs/obat-jadi"));
       setRacikanData(await fetchQueueData("obat-racikan"));
@@ -175,8 +147,31 @@ const PageCall = () => {
     };
   }, []);
 
+  useEffect(() => {
+    socket.on("queueReset", () => {
+      Swal.fire({
+        title: "Antrian Direset!",
+        text: "Seluruh antrian telah direset oleh sistem.",
+        icon: "info",
+        confirmButtonText: "OK",
+      });
+
+      const fetchData = async () => {
+        setBpjsRacikanData(await fetchQueueData("bpjs/obat-racikan"));
+        setBpjsJadiData(await fetchQueueData("bpjs/obat-jadi"));
+        setRacikanData(await fetchQueueData("obat-racikan"));
+        setJadiData(await fetchQueueData("obat-jadi"));
+      };
+      fetchData();
+    });
+
+    return () => {
+      socket.off("queueReset");
+    };
+  }, []);
+
   return (
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center flex">
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
       <Navbar />
       <div className="md:mt-22 mt-24 mb-28 px-12 py-4 flex flex-wrap gap-6 w-full justify-center items-cente">
         {[
@@ -184,49 +179,49 @@ const PageCall = () => {
             label: "Obat Non Racikan",
             data: bpjsJadiData,
             section: "A",
-            loket: [1, 2], // Loket 1 dan 2
-            category: "bpjs/obat-jadi", // Ini category yang sesuai
-            type: "non-racikan", // Tipe untuk non-racikan
+            loket: [1, 2],
+            category: "bpjs/obat-jadi",
+            type: "non-racikan",
             color: "bg-biru1",
           },
           {
             label: "Obat Racikan",
             data: bpjsRacikanData,
             section: "B",
-            loket: [1, 2], // Loket 1 dan 2
-            category: "bpjs/obat-racikan", // Ini category yang sesuai
-            type: "racikan", // Tipe untuk racikan
+            loket: [1, 2],
+            category: "bpjs/obat-racikan",
+            type: "racikan",
             color: "bg-biru1",
           },
           {
             label: "Obat Non Racikan",
             data: jadiData,
             section: "C",
-            loket: [1, 2], // Loket 1 dan 2
-            category: "obat-jadi", // Ini category yang sesuai
-            type: "non-racikan", // Tipe untuk non-racikan
+            loket: [1, 2],
+            category: "obat-jadi",
+            type: "non-racikan",
             color: "bg-hijau1",
           },
           {
             label: "Obat Racikan",
             data: racikanData,
             section: "D",
-            loket: [1, 2], // Loket 1 dan 2
-            category: "obat-racikan", // Ini category yang sesuai
-            type: "racikan", // Tipe untuk racikan
+            loket: [1, 2],
+            category: "obat-racikan",
+            type: "racikan",
             color: "bg-hijau1",
           },
         ].map(
           ({ label, data, section, loket, category, type, color }, index) => (
             <div
               key={index}
-              className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>
+              className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}
+            >
               <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
               <p className="text-6xl text-white w-full py-4 items-center justify-center">
-                {data ? `${section} ${data.no_antrian}` : "Tidak Ada Antrian"}
+              {section} {data ? ` ${data.no_antrian}` : "0"}
               </p>
               <div className="flex flex-col space-y-2 p-4 mb-2 text-black text-sm">
-                {/* Tombol Panggil Loket 1 */}
                 <button
                   onClick={() =>
                     showNotification(data, section, 1, category, type)
@@ -236,11 +231,10 @@ const PageCall = () => {
                     disabledButtons.loket1
                       ? "cursor-not-allowed"
                       : "cursor-pointer"
-                  }`}>
+                  }`}
+                >
                   Panggil Loket 1
                 </button>
-
-                {/* Tombol Panggil Loket 2 */}
                 <button
                   onClick={() =>
                     showNotification(data, section, 2, category, type)
@@ -250,16 +244,15 @@ const PageCall = () => {
                     disabledButtons.loket2
                       ? "cursor-not-allowed"
                       : "cursor-pointer"
-                  }`}>
+                  }`}
+                >
                   Panggil Loket 2
                 </button>
-
-                {/* Tombol Ubah Status */}
                 {data && (
                   <button
                     onClick={() => {
                       updateQueueStatus(data.id_antrian, category);
-                      disableButtonsTemporarily(); // Menonaktifkan tombol sementara
+                      disableButtonsTemporarily();
                       updateCallQueue(data, section, loket, category, type);
                     }}
                     disabled={disabledButtons.nextQueue}
@@ -267,7 +260,8 @@ const PageCall = () => {
                       disabledButtons.nextQueue
                         ? "cursor-not-allowed"
                         : "cursor-pointer"
-                    }`}>
+                    }`}
+                  >
                     Antrian Berikutnya
                   </button>
                 )}
