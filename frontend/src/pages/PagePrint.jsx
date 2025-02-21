@@ -135,6 +135,8 @@ const PagePrint = () => {
 
   const handlePrint = (data, sectionTitle) => {
     const timeWIB = formatWIBTime();
+    console.log("🔄 Mengirim event ke PageCall untuk update data...");
+    socket.emit("refreshQueue");
 
     socket.emit("sendQueueUpdate", {
       section: data.section,
