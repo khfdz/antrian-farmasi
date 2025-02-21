@@ -4,6 +4,7 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Swal from "sweetalert2";
+import speedAudio from "../data/speedAudio.json";
 
 const localAccess = import.meta.env.VITE_NETWORK;
 const socket = io(`http://${localAccess}`);
@@ -18,31 +19,39 @@ const PageView = () => {
 
   const playAudioSequence = async () => {
     if (isPlaying || audioQueue.length === 0) return;
-
+  
     setIsPlaying(true);
-
+  
     let queue = [...audioQueue];
     setAudioQueue([]);
+  
     for (const audioPath of queue) {
       if (!audioPath) continue;
-
+  
+      // Ambil pengaturan dari JSON, jika tidak ada gunakan default
+      const audioConfig = speedAudio[audioPath] || { playbackRate: 1, delay: 0 };
+      const { playbackRate, delay } = audioConfig;
+  
       const audio = new Audio(audioPath);
+      audio.playbackRate = playbackRate;
       audio.preload = "auto";
-
+  
       try {
         await audio.play();
-        await new Promise((resolve) => {
-          audio.onended = resolve;
-        });
-
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => (audio.onended = resolve));
+  
+        // Tunggu delay sebelum lanjut ke audio berikutnya
+        if (delay !== 0) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
       } catch (error) {
         console.error("Gagal memutar audio:", error);
       }
     }
-
+  
     setIsPlaying(false);
   };
+  
 
   useEffect(() => {
     playAudioSequence();
