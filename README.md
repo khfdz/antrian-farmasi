@@ -18,7 +18,7 @@ Backend: Node.js + Express
 Database: MySQL
 Real-Time Communication: WebSocket
 
-📂 Struktur Proyek
+```📂 Struktur Proyek
 antrian-farmasi/
 ├── backend/
 │   ├── config/
@@ -75,6 +75,7 @@ antrian-farmasi/
 ├── .gitignore
 ├── README.md
 └── LICENSE
+```
 
 📜 Penjelasan Struktur
 - backend/: Direktori backend berisi semua file untuk server Node.js, termasuk konfigurasi database, kontroler, rute, layanan, dan socket.
