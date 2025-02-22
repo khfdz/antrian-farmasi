@@ -69,7 +69,7 @@ const PagePrint = () => {
         queueNumber: data.no_antrian,
       });
 
-      return data.no_antrian; 
+      return data.no_antrian;
     } catch (error) {
       console.error(
         `❌ [handleAntrian] Error menambah antrian untuk ${jenis}:`,
@@ -84,7 +84,6 @@ const PagePrint = () => {
     socket.emit("joinRoom", "printRoom");
 
     socket.on("updatePagePrint", ({ room, antrianNumber }) => {
-
       if (room === "bpjs-obat-jadi") {
         setLatestBpjsJadi(antrianNumber);
       } else if (room === "bpjs-obat-racikan") {
@@ -97,13 +96,12 @@ const PagePrint = () => {
     });
 
     return () => {
-      socket.off("updatePagePrint"); 
+      socket.off("updatePagePrint");
     };
   }, []);
 
   useEffect(() => {
     socket.on("queueReset", () => {
-
       Swal.fire({
         title: "Antrian Direset!",
         text: "Seluruh antrian telah direset oleh sistem.",
@@ -135,7 +133,6 @@ const PagePrint = () => {
 
   const handlePrint = (data, sectionTitle) => {
     const timeWIB = formatWIBTime();
-    console.log("🔄 Mengirim event ke PageCall untuk update data...");
     socket.emit("refreshQueue");
 
     socket.emit("sendQueueUpdate", {
@@ -274,8 +271,7 @@ const PagePrint = () => {
         ].map(({ label, color, prefix, button }, index) => (
           <div
             key={index}
-            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}
-          >
+            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center">
               {prefix}{" "}
@@ -296,8 +292,7 @@ const PagePrint = () => {
             </p>
             <button
               onClick={button}
-              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl"
-            >
+              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl">
               Cetak Antrian
             </button>
           </div>
