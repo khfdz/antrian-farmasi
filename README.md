@@ -24,20 +24,18 @@ antrian-farmasi/
 │   ├── config/
 │   │   └── mysqlDB.js
 │   ├── controllers/
-│   │   ├── queueController.js
+│   │   ├── antrianController.js
 │   │   └── audioController.js
 │   ├── data/
-│   │   └── audioData.json
+│   │   └── dataAudio.json
 │   ├── routes/
-│   │   ├── queueRoutes.js
+│   │   ├── antrianRoutes.js
 │   │   └── audioRoutes.js
-│   ├── services/
-│   │   └── emitAntrianUpdate.js
-│   ├── scripts/
-│   │   └── initializeDatabase.js
 │   ├── sockets/
 │   │   ├── antrianSocket.js
-│   │   └── audioSocket.js
+│   │   ├── audioSocket.js
+│   │   ├── printSocket.js
+│   │   ├── resetSocket.js
 │   ├── .env
 │   └── server.js
 ├── frontend/
@@ -68,11 +66,32 @@ antrian-farmasi/
 │   │   ├── puluh.mp3
 │   │   ├── racikan.mp3
 │   │   └── ratus.mp3
-├── database/
-│   ├── schema.sql
-│   ├── seed.sql
-├── .env.example
-├── .gitignore
+│   ├── image/
+│   │   ├── logo.png
+│   │   ├── logoBersih.png
+│   │   ├── logoPanjang.png
+│   │   ├── logoPanjangAlamat.png
+│   │   ├── logoPanjangLengkap.png
+├── src/
+│   ├── components/
+│   │   ├── Footer.jsx
+│   │   ├── FooterAdm.jsx
+│   │   ├── Navbar.jsx
+│   ├── data/
+│   │   ├── speedAudio.json
+│   ├── pages/
+│   │   ├── PageCall.jsx
+│   │   ├── PagePrint.jsx
+│   │   ├── PageView.jsx
+│   ├── App.css
+│   ├── App.jsx
+│   ├── index.css
+│   ├── main.jsx
+├── .env
+├── index.html
+├── postcss.config.js
+├── tailwind.config.js
+├── vite.config.js
 ├── README.md
 └── LICENSE
 ```
