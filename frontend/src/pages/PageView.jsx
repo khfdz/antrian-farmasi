@@ -19,28 +19,29 @@ const PageView = () => {
 
   const playAudioSequence = async () => {
     if (isPlaying || audioQueue.length === 0) return;
-  
+
     setIsPlaying(true);
-  
+
     let queue = [...audioQueue];
     setAudioQueue([]);
-  
+
     for (const audioPath of queue) {
       if (!audioPath) continue;
-  
-      // Ambil pengaturan dari JSON, jika tidak ada gunakan default
-      const audioConfig = speedAudio[audioPath] || { playbackRate: 1, delay: 0 };
+
+      const audioConfig = speedAudio[audioPath] || {
+        playbackRate: 1,
+        delay: 0,
+      };
       const { playbackRate, delay } = audioConfig;
-  
+
       const audio = new Audio(audioPath);
       audio.playbackRate = playbackRate;
       audio.preload = "auto";
-  
+
       try {
         await audio.play();
         await new Promise((resolve) => (audio.onended = resolve));
-  
-        // Tunggu delay sebelum lanjut ke audio berikutnya
+
         if (delay !== 0) {
           await new Promise((resolve) => setTimeout(resolve, delay));
         }
@@ -48,10 +49,9 @@ const PageView = () => {
         console.error("Gagal memutar audio:", error);
       }
     }
-  
+
     setIsPlaying(false);
   };
-  
 
   useEffect(() => {
     playAudioSequence();
@@ -104,7 +104,7 @@ const PageView = () => {
           icon: "info",
           iconColor: "#FF5733",
           html: `
- <div class="flex flex-col items-center justify-center text-center p-6 w-full max-w-[100%]">
+          <div class="flex flex-col items-center justify-center text-center p-6 w-full max-w-[100%]">
             <span class="text-4xl font-bold text-gray-700 mb-6 animate-fade-in whitespace-nowrap">
               Panggilan Untuk Antrian
             </span>
@@ -285,8 +285,7 @@ const PageView = () => {
         ].map(({ label, data, color, prefix }, index) => (
           <div
             key={index}
-            className={`${color} w-[29.5vh] md:w-[35vh] h-auto text-center rounded-md shadow-xl`}
-          >
+            className={`${color} w-[29.5vh] md:w-[35vh] h-auto text-center rounded-md shadow-xl`}>
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center shadow-xl">
               {prefix} {data !== null ? data : "0"}

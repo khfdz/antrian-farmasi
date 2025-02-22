@@ -12,8 +12,7 @@ const Footer = () => {
           repeat: Infinity,
           duration: 300,
           ease: "linear",
-        }}
-      >
+        }}>
         <span>
           Visi kami adalah menjadi rumah sakit yang mengutamakan pelayanan
           kepada semua lapisan masyarakat melalui tenaga kerja yang terlatih dan
