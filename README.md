@@ -18,6 +18,58 @@ Backend: Node.js + Express
 Database: MySQL
 Real-Time Communication: WebSocket
 
+🛠️ Cara Instalasi & Menjalankan Proyek
+Persyaratan Minimum:
+- Node.js (versi LTS)
+- MySQL Server
+- Printer Thermal
+
+Langkah Instalasi:
+# Clone repository
+git clone https://github.com/username/antrian-farmasi.git
+cd antrian-farmasi
+
+# Setup Backend
+1. cd backend
+2. npm install
+3. npm start
+
+# Setup Frontend
+1. cd frontend
+2. npm install
+3. npm run dev
+
+# Setup Database
+1. d
+2. dad
+3. adad
+
+# Setup .env di folder frontend
+VITE_LOCAL=5000
+VITE_NETWORK=192.168.1.128:5000
+
+1. Cek ip menggunakan ipconfig
+2. Ganti .env di folder frontend menggunakan ip komputer yang akan digunakan
+
+# Setup server.js di folder backend
+const allowedOrigins = [
+  "http://192.168.1.14:5173",
+  "http://192.168.1.14:5000",
+  "http://192.168.1.128:5173",
+  "http://192.168.1.128:5000",
+  "http://localhost:5173",
+  "http://192.168.x.x:5173",
+];
+
+1. Tambahkan ip yang akan digunakan kedalam allowedOrigins
+2. Buat 2 dengan port 5000 dan 5173
+
+📣 Alur Kerja (Workflow)
+Page View : 192.168.1.xxx/view
+Page Print : 192.168.1.xxx/print
+Page Call 192.168.1.xxx/call
+
+
 ```📂 Struktur Proyek
 antrian-farmasi/
 ├── backend/
@@ -104,3 +156,5 @@ antrian-farmasi/
 - .env.example: Contoh konfigurasi environment.
 - README.md: Dokumentasi proyek.
 - LICENSE: Lisensi proyek.
+
+- 
