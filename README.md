@@ -247,9 +247,12 @@ Folder utama untuk kode sumber (React) di sisi frontend.
       📸 <a href="https://instagram.com/khfdz">instagram.com/khfdz</a>
       <br />
       🎨 <a href="https://behance.com/khfdz">behance.com/khfdz</a>
+      <br />
+      💼 <a href="https://www.linkedin.com/in/khfdz/">linkedin.com/in/khfdz</a>
     </td>
   </tr>
 </table>
 
 💡 **Ingin berkontribusi?** Jangan ragu untuk melakukan pull request atau membuka issue!
+
 
