@@ -160,23 +160,23 @@ Root folder dari proyek antrian farmasi yang berisi file konfigurasi utama dan s
 
 📂 backend/
 Folder ini berisi seluruh logika dan konfigurasi server (Node.js) untuk sistem antrian farmasi.
-config/
+- config/
     - mysqlDB.js: File konfigurasi koneksi ke database MySQL.
-controllers/
+- controllers/
     - antrianController.js: Mengelola logika utama terkait antrian pasien (menambah, memanggil, mereset antrian, dll.).
     - audioController.js: Bertanggung jawab mengelola pemutaran audio untuk pemanggilan antrian.
-data/
+- data/
     - dataAudio.json: Data konfigurasi dan mapping file audio untuk pemanggilan nomor antrian.
-routes/
+- routes/
     - antrianRoutes.js: Rute (endpoint) untuk mengakses fitur terkait antrian.
     - audioRoutes.js: Rute (endpoint) untuk mengakses fitur terkait audio.
-sockets/
+- sockets/
     - antrianSocket.js: Mengatur komunikasi tampilan antrian secara real-time
     - audioSocket.js: Mengatur pemutaran audio secara real-time.
     - printSocket.js: Mengatur proses pencetakan nomor antrian secara real-time.
     - resetSocket.js: Mengatur proses reset antrian secara real-time.
-.env: File konfigurasi lingkungan untuk menyimpan variabel sensitif (contoh: kredensial database).
-server.js: Entry point utama backend untuk menjalankan server Node.js dan mengatur middleware, rute, serta socket.
+- .env: File konfigurasi lingkungan untuk menyimpan variabel sensitif (contoh: kredensial database).
+- server.js: Entry point utama backend untuk menjalankan server Node.js dan mengatur middleware, rute, serta socket.
 
 📂 frontend/
 Folder ini disiapkan untuk mengatur logika dan antarmuka pengguna (UI) berbasis React di sisi klien.
