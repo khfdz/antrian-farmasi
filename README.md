@@ -204,9 +204,9 @@ Folder utama untuk kode sumber (React) di sisi frontend.
 - data/: Kumpulan data statis atau konfigurasi.
     - speedAudio.json: Konfigurasi kecepatan pemutaran audio.
 - pages/: Kumpulan halaman utama di aplikasi React.
-    -PageCall.jsx: Halaman untuk memanggil nomor antrian ke loket tujuan.
-    -PagePrint.jsx: Halaman untuk mencetak nomor antrian menggunakan printer thermal.
-    -PageView.jsx: Halaman untuk menampilkan nomor antrian dan proses pemanggilan secara real-time.
+    - PageCall.jsx: Halaman untuk memanggil nomor antrian ke loket tujuan.
+    - PagePrint.jsx: Halaman untuk mencetak nomor antrian menggunakan printer thermal.
+    - PageView.jsx: Halaman untuk menampilkan nomor antrian dan proses pemanggilan secara real-time.
 - App.css: Gaya global aplikasi.
 - App.jsx: Komponen utama yang merangkum seluruh aplikasi.
 - index.css: Gaya tambahan untuk proyek.
