@@ -172,11 +172,57 @@ Folder ini berisi seluruh logika dan konfigurasi server (Node.js) untuk sistem a
     - antrianRoutes.js: Rute (endpoint) untuk mengakses fitur terkait antrian.
     - audioRoutes.js: Rute (endpoint) untuk mengakses fitur terkait audio.
 - sockets/
-    - antrianSocket.js: Mengatur komunikasi real-time antrian menggunakan Socket.IO.
-    - audioSocket.js: Mengatur pemutaran audio secara real-time menggunakan Socket.IO.
+    - antrianSocket.js: Mengatur komunikasi tampilan antrian secara real-time
+    - audioSocket.js: Mengatur pemutaran audio secara real-time.
     - printSocket.js: Mengatur proses pencetakan nomor antrian secara real-time.
     - resetSocket.js: Mengatur proses reset antrian secara real-time.
 - .env: File konfigurasi lingkungan untuk menyimpan variabel sensitif (contoh: kredensial database).
 - server.js: Entry point utama backend untuk menjalankan server Node.js dan mengatur middleware, rute, serta socket.
+
+📂 frontend/
+Folder ini disiapkan untuk mengatur logika dan antarmuka pengguna (UI) berbasis React di sisi klien.
+📂 public/
+Folder ini berisi aset statis yang dapat diakses langsung dari browser.
+- audio/: Kumpulan file audio untuk pemanggilan nomor antrian, termasuk:
+    - Angka (1.mp3, 2.mp3, dst.)
+    - Huruf (A.mp3, B.mp3, dst.)
+    - Informasi tambahan (loket1.mp3, no_antrian.mp3, dll.)
+- image/: Kumpulan aset gambar seperti logo dalam berbagai variasi:
+    - logo.png: Logo utama.
+    - logoBersih.png: Logo tanpa latar.
+    - logoPanjang.png: Logo versi horizontal.
+    - logoPanjangAlamat.png: Logo dengan alamat.
+    - logoPanjangLengkap.png: Logo lengkap dengan detail.
+📂 src/
+Folder utama untuk kode sumber (React) di sisi frontend.
+- components/: Kumpulan komponen UI yang dapat digunakan ulang.
+    - Footer.jsx: Komponen footer umum.
+    - FooterAdm.jsx: Komponen footer khusus admin.
+    - Navbar.jsx: Komponen navbar (navigasi utama).
+- data/: Kumpulan data statis atau konfigurasi.
+    - speedAudio.json: Konfigurasi kecepatan pemutaran audio.
+- pages/: Kumpulan halaman utama di aplikasi React.
+    -PageCall.jsx: Halaman untuk memanggil nomor antrian ke loket tujuan.
+    -PagePrint.jsx: Halaman untuk mencetak nomor antrian menggunakan printer thermal.
+    -PageView.jsx: Halaman untuk menampilkan nomor antrian dan proses pemanggilan secara real-time.
+- App.css: Gaya global aplikasi.
+- App.jsx: Komponen utama yang merangkum seluruh aplikasi.
+- index.css: Gaya tambahan untuk proyek.
+- main.jsx: Entry point utama React (merender aplikasi ke DOM).
+📄 File Konfigurasi Lainnya
+- .env: File untuk menyimpan variabel lingkungan.
+- index.html: Template utama HTML untuk merender aplikasi React.
+- postcss.config.js: Konfigurasi PostCSS untuk pemrosesan CSS.
+- tailwind.config.js: Konfigurasi Tailwind CSS.
+- vite.config.js: Konfigurasi Vite (build tool untuk aplikasi React).
+- README.md: Dokumentasi proyek ini.
+- LICENSE: Lisensi proyek ini.
+
+📌 Catatan
+- backend digunakan untuk mengatur logika bisnis dan komunikasi dengan database.
+- frontend digunakan untuk membangun antarmuka aplikasi berbasis React.
+- public digunakan untuk menyimpan aset statis yang diakses langsung oleh klien.
+- src berisi kode utama React untuk menjalankan aplikasi di sisi klien.
+
 
 
