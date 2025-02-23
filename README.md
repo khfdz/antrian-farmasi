@@ -3,29 +3,29 @@
 Aplikasi Antrian Farmasi adalah sistem berbasis web untuk mengelola antrian farmasi secara real-time di Rumah Sakit Keluarga Karawang. Aplikasi ini dirancang menggunakan teknologi modern seperti React, Vite, Node.js, Express.js, MySQL, TailwindCSS, dan WebSocket untuk memastikan performa yang optimal dan pengalaman pengguna yang baik
 
 # 🎯 Fitur Utama
-- 🏥 Manejemen Antrian Loket:
-    - 🔵 Loket A: BPJS Obat Racikan
-    - 🔵 Loket B: BPJS Obat Jadi
-    - 🟢 Loket C: Obat Racikan
-    - 🟢 Loket D: Obat Jadi
-- 🔄 Real-Time Updates :
+- Manejemen Antrian Loket:
+    - Loket A: BPJS Obat Racikan
+    - Loket B: BPJS Obat Jadi
+    - Loket C: Obat Racikan
+    - Loket D: Obat Jadi
+- Real-Time Updates :
     - Update dan panggil nomor antrian secara langsung menggunakan WebSocket.
-- 🗄️ Integrasi Database: 
+- Integrasi Database: 
     - Penyimpanan data antrian yang terstruktur menggunakan MySQL.
 
 # 🚀 Teknologi yang Digunakan
-- 🖥️ Frontend: React + Vite + TailwindCSS
-- ⚙️ Backend: Node.js + Express
-- 🗃️ Database: MySQL
-- 🔔 Real-Time Communication: WebSocket
+- Frontend: React + Vite + TailwindCSS
+- Backend: Node.js + Express
+- Database: MySQL
+- Real-Time Communication: WebSocket
 
 # 🛠️ Cara Instalasi & Menjalankan Proyek
-Persyaratan Minimum:
+✅ Persyaratan Minimum:
 - Node.js (versi LTS)
 - MySQL Server
 - Printer Thermal
 
-Langkah Instalasi:
+📌 Langkah Instalasi:
 - Clone repository https://github.com/username/antrian-farmasi.git
 - cd antrian-farmasi
 
@@ -154,6 +154,7 @@ antrian-farmasi/
 ├── README.md
 └── LICENSE
 ```
+📘 Penjelasan:  
 Struktur folder ini dibagi menjadi beberapa bagian utama: backend, frontend, public, dan src. Berikut adalah penjelasan dari masing-masing folder dan fungsinya: 
 
 📁 antrian-farmasi/  
