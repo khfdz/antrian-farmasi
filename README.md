@@ -240,7 +240,5 @@ Folder utama untuk kode sumber (React) di sisi frontend.
 
 📸 [Instagram](https://instagram.com/khfdz) ・ 🎨 [Behance](https://behance.com/khfdz) ・ 💼 [LinkedIn](https://www.linkedin.com/in/khfdz/)
 
-🎨 Karya oleh Dhika Hafidz
-
 </div>
 
