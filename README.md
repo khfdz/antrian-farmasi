@@ -153,14 +153,3 @@ antrian-farmasi/
 ├── README.md
 └── LICENSE
 ```
-
-# 📜 Penjelasan Struktur
-- backend/: Direktori backend berisi semua file untuk server Node.js, termasuk konfigurasi database, kontroler, rute, layanan, dan socket.
-- frontend/: Direktori frontend untuk aplikasi React.
-- public/audio/: File audio untuk memanggil antrian.
-- database/: Script schema dan seed untuk menginisialisasi database.
-- .env.example: Contoh konfigurasi environment.
-- README.md: Dokumentasi proyek.
-- LICENSE: Lisensi proyek.
-
-- 
