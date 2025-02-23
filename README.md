@@ -153,13 +153,12 @@ antrian-farmasi/
 ├── README.md
 └── LICENSE
 ```
-# 📂 Struktur Folder - Antrian Farmasi
 Struktur folder ini dibagi menjadi beberapa bagian utama: backend, frontend, public, dan src. Berikut adalah penjelasan dari masing-masing folder dan fungsinya: 
 
 📁 antrian-farmasi/
 Root folder dari proyek antrian farmasi yang berisi file konfigurasi utama dan sub-folder untuk backend, frontend, serta aset publik.
 
-- 📂 backend/
+📂 backend/
 Folder ini berisi seluruh logika dan konfigurasi server (Node.js) untuk sistem antrian farmasi.
 - config/
     - mysqlDB.js: File konfigurasi koneksi ke database MySQL.
@@ -179,7 +178,7 @@ Folder ini berisi seluruh logika dan konfigurasi server (Node.js) untuk sistem a
 - .env: File konfigurasi lingkungan untuk menyimpan variabel sensitif (contoh: kredensial database).
 - server.js: Entry point utama backend untuk menjalankan server Node.js dan mengatur middleware, rute, serta socket.
 
-- 📂 frontend/
+📂 frontend/
 Folder ini disiapkan untuk mengatur logika dan antarmuka pengguna (UI) berbasis React di sisi klien.
 
 📂 public/
