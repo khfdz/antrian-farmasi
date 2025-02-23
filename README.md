@@ -230,21 +230,17 @@ Folder utama untuk kode sumber (React) di sisi frontend.
 
 ## 🎉 Kontributor Utama
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/khfdz">
-        <img src="https://github.com/khfdz.png" width="100px;" alt="Dhika Hafidz"/>
-        <br />
-        <sub><b>khfdz</b></sub>
-      </a>
-      <br /><br />
-      📸 <a href="https://instagram.com/khfdz">Instagram</a> ・ 
-      🎨 <a href="https://behance.com/khfdz">Behance</a> ・ 
-      💼 <a href="https://www.linkedin.com/in/khfdz/">LinkedIn</a>
-      <br /><br />
-      🎨 Karya oleh Dhika Hafidz
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+<a href="https://github.com/khfdz">
+  <img src="https://github.com/khfdz.png" width="120px;" alt="Dhika Hafidz"/>
+</a>
+
+### <a href="https://github.com/khfdz" style="font-size: 32px;"><b>khfdz</b></a>
+
+📸 [Instagram](https://instagram.com/khfdz) ・ 🎨 [Behance](https://behance.com/khfdz) ・ 💼 [LinkedIn](https://www.linkedin.com/in/khfdz/)
+
+🎨 Karya oleh Dhika Hafidz
+
+</div>
 
