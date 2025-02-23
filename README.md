@@ -51,7 +51,7 @@ VITE_NETWORK=192.168.1.128:5000
 - Cek ip menggunakan ipconfig
 - Ganti .env di folder frontend menggunakan ip komputer yang akan digunakan
 
-# Setup server.js di folder backend
+Setup server.js di folder backend
 ```
 const allowedOrigins = [
   "http://192.168.1.14:5173",
