@@ -153,3 +153,30 @@ antrian-farmasi/
 ├── README.md
 └── LICENSE
 ```
+# 📂 Struktur Folder - Antrian Farmasi
+Struktur folder ini dibagi menjadi beberapa bagian utama: backend, frontend, public, dan src. Berikut adalah penjelasan dari masing-masing folder dan fungsinya: 
+
+📁 antrian-farmasi/
+Root folder dari proyek antrian farmasi yang berisi file konfigurasi utama dan sub-folder untuk backend, frontend, serta aset publik.
+
+📂 backend/
+Folder ini berisi seluruh logika dan konfigurasi server (Node.js) untuk sistem antrian farmasi.
+- config/
+    - mysqlDB.js: File konfigurasi koneksi ke database MySQL.
+- controllers/
+    - antrianController.js: Mengelola logika utama terkait antrian pasien (menambah, memanggil, mereset antrian, dll.).
+    - audioController.js: Bertanggung jawab mengelola pemutaran audio untuk pemanggilan antrian.
+- data/
+    - dataAudio.json: Data konfigurasi dan mapping file audio untuk pemanggilan nomor antrian.
+- routes/
+    - antrianRoutes.js: Rute (endpoint) untuk mengakses fitur terkait antrian.
+    - audioRoutes.js: Rute (endpoint) untuk mengakses fitur terkait audio.
+- sockets/
+    - antrianSocket.js: Mengatur komunikasi real-time antrian menggunakan Socket.IO.
+    - audioSocket.js: Mengatur pemutaran audio secara real-time menggunakan Socket.IO.
+    - printSocket.js: Mengatur proses pencetakan nomor antrian secara real-time.
+    - resetSocket.js: Mengatur proses reset antrian secara real-time.
+- .env: File konfigurasi lingkungan untuk menyimpan variabel sensitif (contoh: kredensial database).
+- server.js: Entry point utama backend untuk menjalankan server Node.js dan mengatur middleware, rute, serta socket.
+
+
