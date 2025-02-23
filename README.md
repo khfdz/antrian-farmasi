@@ -238,25 +238,13 @@ Folder utama untuk kode sumber (React) di sisi frontend.
         <br />
         <sub><b>khfdz</b></sub>
       </a>
-           <br />
-      📸 <a href="https://instagram.com/khfdz">instagram.com/khfdz</a>
-      <br />
-      🎨 <a href="https://behance.com/khfdz">behance.com/khfdz</a>
-      <br />
-      💼 <a href="https://www.linkedin.com/in/khfdz/">linkedin.com/in/khfdz</a>
-      <br />
+      <br /><br />
+      📸 <a href="https://instagram.com/khfdz">Instagram</a> ・ 
+      🎨 <a href="https://behance.com/khfdz">Behance</a> ・ 
+      💼 <a href="https://www.linkedin.com/in/khfdz/">LinkedIn</a>
+      <br /><br />
       🎨 Karya oleh Dhika Hafidz
-    </td>
-    <td align="left" valign="middle">
-      <b>khfdz</b>  
-      <br />
-      📸 <a href="https://instagram.com/khfdz">instagram.com/khfdz</a>
-      <br />
-      🎨 <a href="https://behance.com/khfdz">behance.com/khfdz</a>
-      <br />
-      💼 <a href="https://www.linkedin.com/in/khfdz/">linkedin.com/in/khfdz</a>
     </td>
   </tr>
 </table>
-
 
