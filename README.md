@@ -228,5 +228,21 @@ Folder utama untuk kode sumber (React) di sisi frontend.
 - public digunakan untuk menyimpan aset statis yang diakses langsung oleh klien.
 - src berisi kode utama React untuk menjalankan aplikasi di sisi klien.
 
+## 🎉 Kontributor Utama
 
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/khfdz">
+        <img src="https://github.com/khfdz.png" width="100px;" alt="Dhika Hafidz"/>
+        <br />
+        <sub><b>Dhika Hafidz</b></sub>
+      </a>
+      <br />
+      🚀 Pengembang Utama
+    </td>
+  </tr>
+</table>
+
+💡 **Ingin berkontribusi?** Jangan ragu untuk melakukan pull request atau membuka issue!
 
