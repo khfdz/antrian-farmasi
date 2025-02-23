@@ -40,9 +40,7 @@ Setup Frontend
 - npm run dev
 
 Setup Database
-- d
-- dad
-- adad
+- import database MySQL yg telah disediakan
 
 Setup .env di folder frontend
 ```
