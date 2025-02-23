@@ -2,7 +2,7 @@ Antrian Farmasi
 
 Aplikasi Antrian Farmasi adalah sistem berbasis web untuk mengelola antrian farmasi secara real-time di Rumah Sakit Keluarga Karawang. Aplikasi ini dirancang menggunakan teknologi modern seperti React, Vite, Node.js, Express.js, MySQL, TailwindCSS, dan WebSocket untuk memasikan performa yang optimal dan user experience yang baik.
 
-🎯 Fitur Utama
+# 🎯 Fitur Utama
 - Manejemen Antrian Loket:
     - Loket A: BPJS Obat Racikan
     - Loket B: BPJS Obat Jadi
@@ -12,22 +12,21 @@ Aplikasi Antrian Farmasi adalah sistem berbasis web untuk mengelola antrian farm
   - Update dan panggil nomor antrian secara langsung menggunakan WebSocket.
 - Integrasi Database: Penyimpanan data antrian yang terstruktur menggunakan MySQL.
 
-🚀 Teknologi yang Digunakan
+# 🚀 Teknologi yang Digunakan
 Frontend: React + Vite + TailwindCSS
 Backend: Node.js + Express
 Database: MySQL
 Real-Time Communication: WebSocket
 
-🛠️ Cara Instalasi & Menjalankan Proyek
+# 🛠️ Cara Instalasi & Menjalankan Proyek
 Persyaratan Minimum:
 - Node.js (versi LTS)
 - MySQL Server
 - Printer Thermal
 
-Langkah Instalasi:
-# Clone repository
-git clone https://github.com/username/antrian-farmasi.git
-cd antrian-farmasi
+# Langkah Instalasi:
+1. Clone repository https://github.com/username/antrian-farmasi.git
+2. cd antrian-farmasi
 
 # Setup Backend
 1. cd backend
@@ -45,8 +44,10 @@ cd antrian-farmasi
 3. adad
 
 # Setup .env di folder frontend
+```
 VITE_LOCAL=5000
 VITE_NETWORK=192.168.1.128:5000
+```
 
 1. Cek ip menggunakan ipconfig
 2. Ganti .env di folder frontend menggunakan ip komputer yang akan digunakan
@@ -64,13 +65,14 @@ const allowedOrigins = [
 1. Tambahkan ip yang akan digunakan kedalam allowedOrigins
 2. Buat 2 dengan port 5000 dan 5173
 
-📣 Alur Kerja (Workflow)
+# 📣 Alur Kerja (Workflow)
 Page View : 192.168.1.xxx/view
 Page Print : 192.168.1.xxx/print
 Page Call 192.168.1.xxx/call
 
 
-```📂 Struktur Proyek
+# 📂 Struktur Proyek
+```
 antrian-farmasi/
 ├── backend/
 │   ├── config/
