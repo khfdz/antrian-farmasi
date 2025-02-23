@@ -25,34 +25,34 @@ Persyaratan Minimum:
 - Printer Thermal
 
 # Langkah Instalasi:
-1. Clone repository https://github.com/username/antrian-farmasi.git
-2. cd antrian-farmasi
+- Clone repository https://github.com/username/antrian-farmasi.git
+- cd antrian-farmasi
 
 # Setup Backend
-1. cd backend
-2. npm install
-3. npm start
+- cd backend
+- npm install
+- npm start
 
 # Setup Frontend
-1. cd frontend
-2. npm install
-3. npm run dev
+- cd frontend
+- npm install
+- npm run dev
 
 # Setup Database
-1. d
-2. dad
-3. adad
+- d
+- dad
+- adad
 
 # Setup .env di folder frontend
 ```
 VITE_LOCAL=5000
 VITE_NETWORK=192.168.1.128:5000
 ```
-
-1. Cek ip menggunakan ipconfig
-2. Ganti .env di folder frontend menggunakan ip komputer yang akan digunakan
+- Cek ip menggunakan ipconfig
+- Ganti .env di folder frontend menggunakan ip komputer yang akan digunakan
 
 # Setup server.js di folder backend
+```
 const allowedOrigins = [
   "http://192.168.1.14:5173",
   "http://192.168.1.14:5000",
@@ -61,15 +61,19 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://192.168.x.x:5173",
 ];
+```
+- Tambahkan ip yang akan digunakan kedalam allowedOrigins
+- Buat 2 dengan port 5000 dan 5173
 
-1. Tambahkan ip yang akan digunakan kedalam allowedOrigins
-2. Buat 2 dengan port 5000 dan 5173
-
-# 📣 Alur Kerja (Workflow)
+# 📣 Alur Kerja
+```
 Page View : 192.168.1.xxx/view
 Page Print : 192.168.1.xxx/print
 Page Call 192.168.1.xxx/call
-
+```
+- Page View berfungsi untuk menampilkan jumlah nomor antrian dan memproses pemanggilan nomor antrian pasien.
+- Page Print berfungsi sebagai halaman yang digunakan oleh admin untuk mencetak nomor antrian pasien menggunakan printer thermal.
+- Page Call berfungsi sebagai halaman yang digunakan oleh admin untuk memanggil nomor antrian pasien ke loket tujuan.
 
 # 📂 Struktur Proyek
 ```
@@ -150,7 +154,7 @@ antrian-farmasi/
 └── LICENSE
 ```
 
-📜 Penjelasan Struktur
+# 📜 Penjelasan Struktur
 - backend/: Direktori backend berisi semua file untuk server Node.js, termasuk konfigurasi database, kontroler, rute, layanan, dan socket.
 - frontend/: Direktori frontend untuk aplikasi React.
 - public/audio/: File audio untuk memanggil antrian.
