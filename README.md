@@ -192,7 +192,7 @@ Folder ini berisi aset statis yang dapat diakses langsung dari browser.
     - logoPanjang.png: Logo versi horizontal.
     - logoPanjangAlamat.png: Logo dengan alamat.
     - logoPanjangLengkap.png: Logo lengkap dengan detail.
-    📂 src/  
+📂 src/  
 Folder utama untuk kode sumber (React) di sisi frontend.
 - components/: Kumpulan komponen UI yang dapat digunakan ulang.
     - Footer.jsx: Komponen footer umum.
