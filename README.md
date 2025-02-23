@@ -236,7 +236,7 @@ Folder utama untuk kode sumber (React) di sisi frontend.
   <img src="https://github.com/khfdz.png" width="120px;" alt="Dhika Hafidz"/>
 </a>
 
-### <a href="https://github.com/khfdz" style="font-size: 32px;"><b>khfdz</b></a>
+### <a href="https://github.com/khfdz" style="font-size: 64px;"><b>khfdz</b></a>
 
 📸 [Instagram](https://instagram.com/khfdz) ・ 🎨 [Behance](https://behance.com/khfdz) ・ 💼 [LinkedIn](https://www.linkedin.com/in/khfdz/)
 
