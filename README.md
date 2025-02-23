@@ -200,7 +200,7 @@ Folder utama untuk kode sumber (React) di sisi frontend.
     - Navbar.jsx: Komponen navbar (navigasi utama).
 - data/: Kumpulan data statis atau konfigurasi.
       - speedAudio.json: Konfigurasi kecepatan pemutaran audio.
-- pages/: Kumpulan halaman utama di aplikasi React.
+- pages/: Kumpulan halaman utama di aplikasi React.  
       - PageCall.jsx: Halaman untuk memanggil nomor antrian ke loket tujuan.
       - PagePrint.jsx: Halaman untuk mencetak nomor antrian menggunakan printer thermal.
       - PageView.jsx: Halaman untuk menampilkan nomor antrian dan proses pemanggilan secara real-time.
