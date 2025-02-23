@@ -241,6 +241,13 @@ Folder utama untuk kode sumber (React) di sisi frontend.
       <br />
       🚀 Pengembang Utama
     </td>
+    <td align="left" valign="middle">
+      <b>khfdz</b>  
+      <br />
+      📸 <a href="https://instagram.com/khfdz">instagram.com/khfdz</a>
+      <br />
+      🎨 <a href="https://behance.com/khfdz">behance.com/khfdz</a>
+    </td>
   </tr>
 </table>
 
