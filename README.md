@@ -24,26 +24,26 @@ Persyaratan Minimum:
 - MySQL Server
 - Printer Thermal
 
-# Langkah Instalasi:
+Langkah Instalasi:
 - Clone repository https://github.com/username/antrian-farmasi.git
 - cd antrian-farmasi
 
-# Setup Backend
+Setup Backend
 - cd backend
 - npm install
 - npm start
 
-# Setup Frontend
+Setup Frontend
 - cd frontend
 - npm install
 - npm run dev
 
-# Setup Database
+Setup Database
 - d
 - dad
 - adad
 
-# Setup .env di folder frontend
+Setup .env di folder frontend
 ```
 VITE_LOCAL=5000
 VITE_NETWORK=192.168.1.128:5000
