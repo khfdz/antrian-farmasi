@@ -21,7 +21,6 @@ const PageCall = () => {
     nextQueue: false,
   });
 
-  // Fetch queue data
   const fetchQueueData = useCallback(async (type) => {
     try {
       const response = await axios.get(
@@ -260,9 +259,9 @@ const PageCall = () => {
                       disableButtonsTemporarily();
                       updateCallQueue(data, section);
                     }}
-                    disabled={!data?.no_antrian}
+                    disabled={disabledButtons.nextQueue || !data?.no_antrian}
                     className={`bg-red-500 p-2 text-white rounded-md ${
-                      !data?.no_antrian
+                      disabledButtons.nextQueue || !data?.no_antrian
                         ? "cursor-not-allowed"
                         : "cursor-pointer"
                     }`}>

@@ -11,7 +11,7 @@ const App = () => {
       <Routes>
         <Route path="/call" element={<PageCall />} />
         <Route path="/print" element={<PagePrint />} />
-        <Route path="/" element={<PageView />} />
+        <Route path="/view" element={<PageView />} />
       </Routes>
     </Router>
   );

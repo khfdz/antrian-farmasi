@@ -162,6 +162,8 @@ const PagePrint = () => {
                 margin: 0;
                 width: 100%;
               }
+              .textPrint {
+                font-size: 70px;}
               h1, h2, h3, p {
                 margin: 5px 0;
               }
@@ -174,21 +176,21 @@ const PagePrint = () => {
         </head>
         <body>
           <div class="print-container">
-            <h1>RUMAH SAKIT</h1>
+            <h2>RUMAH SAKIT</h1>
             <h2>PERMATA KELUARGA KARAWANG</h2>
             <div class="line"></div>
-            <h3>${sectionTitle}</h3>
-            <h2>${data.section} ${data.queueNumber}</h2>
+            <h2>${sectionTitle}</h2>
+            <h1 class="textPrint">${data.section} ${data.queueNumber}</h1>
             <div class="line"></div>
             <p>Silakan menunggu sampai dipanggil</p>
             <p>Terima kasih telah memilih kami</p>
             <p>
-              Tanggal ${new Date().toLocaleDateString("id-ID", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-              <br />
+          ${new Date().toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          })}
+              - 
               ${timeWIB}
             </p>
           </div>

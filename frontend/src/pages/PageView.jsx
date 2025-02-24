@@ -19,7 +19,6 @@ const PageView = () => {
 
   const playAudioSequence = async () => {
     if (isPlaying || audioQueue.length === 0) return;
-
     setIsPlaying(true);
 
     let queue = [...audioQueue];
@@ -28,34 +27,37 @@ const PageView = () => {
     for (const audioPath of queue) {
       if (!audioPath) continue;
 
-      const audioConfig = speedAudio[audioPath] || {
-        playbackRate: 1,
-        delay: 0,
-      };
-      const { playbackRate, delay } = audioConfig;
-
-      const audio = new Audio(audioPath);
-      audio.playbackRate = playbackRate;
-      audio.preload = "auto";
-
-      try {
-        await audio.play();
-        await new Promise((resolve) => (audio.onended = resolve));
-
-        if (delay !== 0) {
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        }
-      } catch (error) {
-        console.error("Gagal memutar audio:", error);
-      }
+      const { playbackRate = 1, delay = 0 } = speedAudio[audioPath] || {};
+      await playAudioWithSpeed(audioPath, playbackRate, delay);
     }
 
     setIsPlaying(false);
   };
 
+  const playAudioWithSpeed = (path, playbackRate, delay) => {
+    return new Promise((resolve) => {
+      const audio = new Audio(path);
+      audio.playbackRate = playbackRate;
+      audio.preload = "auto";
+
+      audio.onloadedmetadata = () => {
+        const duration = (audio.duration / playbackRate) * 1000;
+        const waitTime = Math.max(0, duration + delay);
+
+        audio
+          .play()
+          .catch((error) => console.error("Error playing audio:", error));
+
+        setTimeout(resolve, waitTime);
+      };
+
+      audio.onended = resolve;
+    });
+  };
+
   useEffect(() => {
-    playAudioSequence();
-  });
+    if (audioQueue.length > 0) playAudioSequence();
+  }, [audioQueue]);
 
   useEffect(() => {
     socket.on("queueReset", () => {
@@ -64,22 +66,16 @@ const PageView = () => {
         text: "Seluruh antrian telah direset oleh sistem.",
         icon: "info",
         confirmButtonText: "OK",
-        timer: "5000",
+        timer: 5000,
       });
 
-      const fetchData = async () => {
-        bpjsRacikanData(await setBpjsRacikanData("bpjs/obat-racikan"));
-        bpjsJadiData(await setBpjsJadiData("bpjs/obat-jadi"));
-        racikanData(await setRacikanData("obat-racikan"));
-        jadiData(await setJadiData("obat-jadi"));
-      };
-      fetchData();
+      fetchInitialData();
     });
 
     return () => {
       socket.off("queueReset");
     };
-  });
+  }, []);
 
   const handlePlayCallAudio = async (data) => {
     try {
@@ -97,33 +93,27 @@ const PageView = () => {
       if (audioSequence && Array.isArray(audioSequence)) {
         setAudioQueue((prevQueue) => [...prevQueue, ...audioSequence]);
 
-        const colorClass =
-          data.letter === "A" || data.letter === "B" ? "bg-biru1" : "bg-hijau1";
+        const colorClass = ["A", "B"].includes(data.letter)
+          ? "bg-biru1"
+          : "bg-hijau1";
 
         Swal.fire({
           icon: "info",
           iconColor: "#FF5733",
           html: `
-          <div class="flex flex-col items-center justify-center text-center p-6 w-full max-w-[100%]">
-            <span class="text-4xl font-bold text-gray-700 mb-6 animate-fade-in whitespace-nowrap">
-              Panggilan Untuk Antrian
-            </span>
-            <div class="text-6xl font-bold text-white animate-bounce ${colorClass} px-6 py-2 rounded-xl shadow-lg">
-              ${data.letter} ${data.number}
-            </div>
-            <div class="text-4xl text-gray-700 font-bold mt-6">
-              <span class="mb-4 whitespace-nowrap">Silakan menuju</span>
-            </div>
-            <span class="text-white mt-6 text-5xl font-bold ${colorClass} px-6 py-2 rounded-xl shadow-lg animate-bounce">
-              LOKET ${data.loket}
-            </span>
-          </div>
-          `,
+            <div class="flex flex-col items-center justify-center text-center p-6">
+              <span class="text-4xl font-bold text-gray-700 mb-6 animate-fade-in">Panggilan Untuk Antrian</span>
+              <div class="text-6xl font-bold text-white animate-bounce ${colorClass} px-6 py-2 rounded-xl shadow-lg">
+                ${data.letter} ${data.number}
+              </div>
+              <div class="text-4xl text-gray-700 font-bold mt-6">Silakan menuju</div>
+              <span class="text-white mt-6 text-5xl font-bold ${colorClass} px-6 py-2 rounded-xl shadow-lg animate-bounce">
+                LOKET ${data.loket}
+              </span>
+            </div>`,
           showConfirmButton: false,
           timer: 19000,
-          customClass: {
-            popup: "bg-white shadow-lg rounded-lg p-6",
-          },
+          customClass: { popup: "bg-white shadow-lg rounded-lg p-6" },
         });
       } else {
         console.error(
@@ -141,16 +131,6 @@ const PageView = () => {
     socket.on("playCallAudio", handlePlayCallAudio);
     return () => {
       socket.off("playCallAudio", handlePlayCallAudio);
-    };
-  }, []);
-
-  useEffect(() => {
-    socket.on("updateCallQueue", (data) => {
-      socket.emit("forwardCallQueue", data);
-    });
-
-    return () => {
-      socket.off("updateCallQueue");
     };
   }, []);
 
@@ -177,86 +157,27 @@ const PageView = () => {
 
   useEffect(() => {
     fetchInitialData();
-
-    socket.emit("joinRoom", "bpjs-obat-racikan");
-    socket.emit("joinRoom", "bpjs-obat-jadi");
-    socket.emit("joinRoom", "obat-racikan");
-    socket.emit("joinRoom", "obat-jadi");
-
-    const socketEvents = [
-      { event: "antrianUpdated-bpjs-obat-racikan", setter: setBpjsRacikanData },
-      { event: "antrianUpdated-bpjs-obat-jadi", setter: setBpjsJadiData },
-      { event: "antrianUpdated-obat-racikan", setter: setRacikanData },
-      { event: "antrianUpdated-obat-jadi", setter: setJadiData },
-    ];
-
-    socketEvents.forEach(({ event, setter }) => {
-      socket.on(event, (data) => {
-        setter(data.antrianNumber);
-        socket.emit("updatePagePrint", {
-          room: event.replace("antrianUpdated-", ""),
-          antrianNumber: data.antrianNumber,
-        });
-      });
-    });
-
-    socket.on("receiveQueueUpdate", ({ section, queueNumber }) => {
-      if (section === "bpjs-obat-jadi") {
-        setBpjsJadiData(queueNumber);
-      } else if (section === "bpjs-obat-racikan") {
-        setBpjsRacikanData(queueNumber);
-      } else if (section === "obat-jadi") {
-        setJadiData(queueNumber);
-      } else if (section === "obat-racikan") {
-        setRacikanData(queueNumber);
-      }
-    });
-
-    socket.on("queueUpdate", ({ section, queueNumber }) => {
-      if (section === "bpjs-obat-jadi") {
-        setBpjsJadiData(queueNumber);
-      } else if (section === "bpjs-obat-racikan") {
-        setBpjsRacikanData(queueNumber);
-      } else if (section === "obat-jadi") {
-        setJadiData(queueNumber);
-      } else if (section === "obat-racikan") {
-        setRacikanData(queueNumber);
-      }
-
-      socket.on("refreshQueueView", ({ no_antrian, section }) => {
-        if (section === "bpjs-obat-jadi") {
-          setBpjsJadiData(no_antrian);
-        } else if (section === "bpjs-obat-racikan") {
-          setBpjsRacikanData(no_antrian);
-        } else if (section === "obat-jadi") {
-          setJadiData(no_antrian);
-        } else if (section === "obat-racikan") {
-          setRacikanData(no_antrian);
-        }
-
-        socket.emit("updatePagePrint", {
-          room: section,
-          antrianNumber: no_antrian,
-        });
-      });
-      socket.emit("updatePagePrint", {
-        room: section,
-        antrianNumber: queueNumber,
-      });
-    });
+    [
+      "bpjs-obat-racikan",
+      "bpjs-obat-jadi",
+      "obat-racikan",
+      "obat-jadi",
+    ].forEach((room) => socket.emit("joinRoom", room));
 
     return () => {
-      socketEvents.forEach(({ event }) => socket.off(event));
-      socket.off("receiveQueueUpdate");
-      socket.off("refreshQueueView");
+      [
+        "bpjs-obat-racikan",
+        "bpjs-obat-jadi",
+        "obat-racikan",
+        "obat-jadi",
+      ].forEach((room) => socket.off(`antrianUpdated-${room}`));
     };
   }, []);
 
   return (
     <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
       <Navbar />
-
-      <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
+      <div className="mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
         {[
           {
             label: "Obat Non Racikan",
@@ -293,7 +214,6 @@ const PageView = () => {
           </div>
         ))}
       </div>
-
       <Footer />
     </div>
   );
