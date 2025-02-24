@@ -40,7 +40,8 @@ Setup Frontend
 - npm run dev
 
 Setup Database
-- import database MySQL yg telah disediakan
+- Buat database MySQL dengan nama antrian_obat_farmasi
+- Import database MySQL yg telah disediakan
 
 Setup .env di folder frontend
 ```
