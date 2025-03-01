@@ -463,7 +463,9 @@ const resetAntrian = (req, res) => {
         if (err) {
           console.error("Error resetting antrian_counter:", err);
           return db.query("ROLLBACK", () => {
-            res.status(500).json({ message: "Failed to reset antrian_counter" });
+            res
+              .status(500)
+              .json({ message: "Failed to reset antrian_counter" });
           });
         }
 
@@ -494,12 +496,16 @@ const resetAntrian = (req, res) => {
                 console.error("Error committing transaction:", err);
                 return res.status(500).json({ message: "Commit failed" });
               }
-              res.status(200).json({ message: "Queue and counter reset successfully!" });
+              res
+                .status(200)
+                .json({ message: "Queue and counter reset successfully!" });
             });
           })
           .catch(() => {
             db.query("ROLLBACK");
-            res.status(500).json({ message: "Failed to delete some queue data" });
+            res
+              .status(500)
+              .json({ message: "Failed to delete some queue data" });
           });
       }
     );

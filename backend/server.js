@@ -2,15 +2,18 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const socketIo = require("socket.io");
-
-require("dotenv").config();
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 
 const allowedOrigins = [
-  "http://192.168.1.127:5173",
-  "http://192.168.1.127:5000",
+  "http://192.168.1.134:5173",
+  "http://192.168.1.134:5000",
+  "http://localhost:5173",
+  "http://localhost:5000",
+  "http://www.antrian-farmasi.rspkrw",
+  "http://www.antrian-farmasi.rspkrw:5000",
 ];
 
 app.use(
@@ -41,4 +44,12 @@ require("./sockets/printSocket")(io);
 require("./sockets/resetSocket")(io);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, "0.0.0.0");
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server berjalan : ${PORT}`);
+});
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+});

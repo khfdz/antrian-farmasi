@@ -12,7 +12,9 @@ module.exports = (io) => {
     });
   });
 
-  cron.schedule("0 0 * * *", async () => {
+  process.env.TZ = "Asia/Jakarta";
+
+  cron.schedule("0 0 0 * * *", async () => {
     try {
       await axios.delete("http://127.0.0.1:5000/api/antrian/reset");
       io.emit("queueReset");

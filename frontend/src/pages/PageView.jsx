@@ -77,6 +77,17 @@ const PageView = () => {
     };
   }, []);
 
+  useEffect(() => {
+    socket.on("receiveQueueUpdate", ({ section, queueNumber }) => {
+      if (section === "bpjs-obat-jadi") setBpjsJadiData(queueNumber);
+      else if (section === "bpjs-obat-racikan") setBpjsRacikanData(queueNumber);
+      else if (section === "obat-jadi") setJadiData(queueNumber);
+      else if (section === "obat-racikan") setRacikanData(queueNumber);
+    });
+
+    return () => socket.off("sendQueueUpdate");
+  }, []);
+
   const handlePlayCallAudio = async (data) => {
     try {
       const response = await axios.get(`http://${localAccess}/api/audio/call`, {
@@ -156,6 +167,19 @@ const PageView = () => {
   };
 
   useEffect(() => {
+    socket.on("updateCallQueue", ({ section, queueNumber }) => {
+      if (section === "A") setBpjsJadiData(queueNumber);
+      else if (section === "B") setBpjsRacikanData(queueNumber);
+      else if (section === "C") setJadiData(queueNumber);
+      else if (section === "D") setRacikanData(queueNumber);
+
+      socket.emit("updateCallRoom", { section, queueNumber });
+    });
+
+    return () => socket.off("updateCallQueue");
+  }, []);
+
+  useEffect(() => {
     fetchInitialData();
     [
       "bpjs-obat-racikan",
@@ -206,7 +230,7 @@ const PageView = () => {
         ].map(({ label, data, color, prefix }, index) => (
           <div
             key={index}
-            className={`${color} w-[29.5vh] md:w-[35vh] h-auto text-center rounded-md shadow-xl`}>
+            className={`${color} w-[29.5vh] md:w-[40vh] h-auto text-center rounded-md shadow-xl`}>
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center shadow-xl">
               {prefix} {data !== null ? data : "0"}

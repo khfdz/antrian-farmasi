@@ -10,13 +10,20 @@ module.exports = (io) => {
       io.to("callRoom").emit("playCallAudio", data);
     });
 
+    socket.on("updateCallRoom", (data) => {
+      io.to("callRoom").emit("refreshCallPage", data);
+    });
+
     socket.on("updateQueueView", (data) => {
-      io.emit("updateCallQueue", data);
+      const { section, no_antrian } = data;
+      io.emit("updateCallQueue", {
+        section,
+        queueNumber: no_antrian,
+      });
     });
 
     socket.on("refreshQueue", () => {
-      console.log("🔄 Event refreshQueue diterima, broadcast ke semua client...");
-      io.emit("refreshQueue"); 
+      io.emit("refreshQueue");
     });
   });
 };

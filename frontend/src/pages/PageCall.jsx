@@ -138,6 +138,19 @@ const PageCall = () => {
   }, [fetchQueueData]);
 
   useEffect(() => {
+    socket.emit("joinRoom", "callRoom");
+
+    socket.on("refreshCallPage", async ({ section, queueNumber }) => {
+      setBpjsRacikanData(await fetchQueueData("bpjs/obat-racikan"));
+      setBpjsJadiData(await fetchQueueData("bpjs/obat-jadi"));
+      setRacikanData(await fetchQueueData("obat-racikan"));
+      setJadiData(await fetchQueueData("obat-jadi"));
+    });
+
+    return () => socket.off("refreshCallPage");
+  }, [fetchQueueData]);
+
+  useEffect(() => {
     socket.on("refreshQueue", async () => {
       setBpjsRacikanData(await fetchQueueData("bpjs/obat-racikan"));
       setBpjsJadiData(await fetchQueueData("bpjs/obat-jadi"));
