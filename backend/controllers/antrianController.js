@@ -1,5 +1,4 @@
 const db = require("../config/mysqlDB");
-const { get } = require("../routes/antrianRoutes");
 
 //----------------------------------------------------------ANTRIAN BPJS OBAT RACIKAN----------------------------//
 const tambahAntrianBpjsObatRacikan = (req, res) => {
@@ -466,6 +465,7 @@ const resetAntrian = (req, res) => {
             res.status(500).json({ message: "Failed to reset antrian_counter" });
           });
         }
+        const promiseDb = db.promise();
 
         const tables = [
           "antrian_bpjs_obat_racikan",
@@ -474,17 +474,8 @@ const resetAntrian = (req, res) => {
           "antrian_obat_jadi",
         ];
 
-        let deletePromises = tables.map((table) => {
-          return new Promise((resolve, reject) => {
-            db.query(`DELETE FROM ${table}`, (err) => {
-              if (err) {
-                console.error(`Error deleting data in ${table}:`, err);
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
+        const deletePromises = tables.map((table) => {
+          return promiseDb.query(`DELETE FROM ${table}`);
         });
 
         Promise.all(deletePromises)
@@ -497,7 +488,8 @@ const resetAntrian = (req, res) => {
               res.status(200).json({ message: "Queue and counter reset successfully!" });
             });
           })
-          .catch(() => {
+          .catch((err) => {
+            console.error("Error during deletion:", err);
             db.query("ROLLBACK");
             res.status(500).json({ message: "Failed to delete some queue data" });
           });
@@ -505,6 +497,7 @@ const resetAntrian = (req, res) => {
     );
   });
 };
+
 //------------------------------------------------RESET DATABASE--------------------------------------------//
 
 module.exports = {

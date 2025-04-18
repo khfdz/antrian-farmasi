@@ -21,7 +21,6 @@ const PageCall = () => {
     nextQueue: false,
   });
 
-  // Fetch queue data
   const fetchQueueData = useCallback(async (type) => {
     try {
       const response = await axios.get(
@@ -208,7 +207,7 @@ const PageCall = () => {
             color: "bg-hijau1",
           },
         ].map(
-          ({ label, data, section, loket, category, type, color }, index) => (
+          ({ label, data, section, category, type, color }, index) => (
             <div
               key={index}
               className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>

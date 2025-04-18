@@ -1,4 +1,5 @@
 const db = require("../config/mysqlDB");
+const promiseDb = db.promise(); 
 
 module.exports = (io) => {
   io.on("connection", (socket) => {
@@ -17,7 +18,7 @@ module.exports = (io) => {
 
   const emitAntrianUpdate = async () => {
     try {
-      const [results] = await db.query(
+      const [results] = await promiseDb.query(
         "SELECT last_no_antrian_bpjs_racikan, last_no_antrian_bpjs_jadi, last_no_antrian_racikan, last_no_antrian_jadi FROM antrian_counter WHERE id = 1"
       );
 
@@ -31,7 +32,9 @@ module.exports = (io) => {
       Object.entries(antrianData).forEach(([room, antrianNumber]) => {
         io.to(room).emit(`antrianUpdated-${room}`, { antrianNumber });
       });
-    } catch (err) {}
+    } catch (err) {
+      console.error("🔥 Error in emitAntrianUpdate:", err);
+    }
   };
 
   emitAntrianUpdate();

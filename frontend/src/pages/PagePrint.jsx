@@ -174,11 +174,11 @@ const PagePrint = () => {
         </head>
         <body>
           <div class="print-container">
-            <h1>RUMAH SAKIT</h1>
-            <h2>PERMATA KELUARGA KARAWANG</h2>
+            <h3>RUMAH SAKIT</h3>
+            <h3>PERMATA KELUARGA KARAWANG</h3>
             <div class="line"></div>
-            <h3>${sectionTitle}</h3>
-            <h2>${data.section} ${data.queueNumber}</h2>
+            <h2>${sectionTitle}</h2>
+            <h1>${data.prefix} ${data.queueNumber}</h1>
             <div class="line"></div>
             <p>Silakan menunggu sampai dipanggil</p>
             <p>Terima kasih telah memilih kami</p>
@@ -202,103 +202,103 @@ const PagePrint = () => {
     newWindow.close();
   };
 
+  const handleButtonClick = async (jenis, sectionTitle, prefix) => {
+    // Menampilkan SweetAlert2 untuk konfirmasi
+    const result = await Swal.fire({
+      title: "Konfirmasi",
+      text: "Apakah Anda yakin ingin melanjutkan?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Iya",
+      cancelButtonText: "Tidak",
+    });
+  
+    if (result.isConfirmed) {
+      // Jika user memilih "Iya", lanjutkan proses antrian
+      const newQueue = await handleAntrian(jenis);
+      handlePrint(
+        {
+          prefix,
+          section: sectionTitle,
+          queueNumber: newQueue,
+        },
+        sectionTitle
+      );
+    } else {
+      // Jika user memilih "Tidak", tidak melakukan apa-apa
+      Swal.fire("Dibatalkan", "Proses antrian dibatalkan", "info");
+    }
+  };
+
   return (
     <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
       <Navbar />
-
+  
       <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
         {[
           {
             label: "Obat Non Racikan",
             color: "bg-biru1",
             prefix: "A",
-            button: async () => {
-              const newQueue = await handleAntrian("bpjs/obat-jadi");
-              handlePrint(
-                {
-                  section: "A",
-                  queueNumber: newQueue,
-                },
-                "Obat Non Racikan"
-              );
-            },
+            jenis: "bpjs/obat-jadi",
+            sectionTitle: "Obat Non Racikan",
           },
           {
             label: "Obat Racikan",
             color: "bg-biru1",
             prefix: "B",
-            button: async () => {
-              const newQueue = await handleAntrian("bpjs/obat-racikan");
-              handlePrint(
-                {
-                  section: "B",
-                  queueNumber: newQueue,
-                },
-                "Obat Racikan"
-              );
-            },
+            jenis: "bpjs/obat-racikan",
+            sectionTitle: "Obat Racikan",
           },
           {
             label: "Obat Non Racikan",
             color: "bg-hijau1",
             prefix: "C",
-            button: async () => {
-              const newQueue = await handleAntrian("obat-jadi");
-              handlePrint(
-                {
-                  section: "C",
-                  queueNumber: newQueue,
-                },
-                "Obat Non Racikan"
-              );
-            },
+            jenis: "obat-jadi",
+            sectionTitle: "Obat Non Racikan",
           },
           {
             label: "Obat Racikan",
             color: "bg-hijau1",
             prefix: "D",
-            button: async () => {
-              const newQueue = await handleAntrian("obat-racikan");
-              handlePrint(
-                {
-                  section: "D",
-                  queueNumber: newQueue,
-                },
-                "Obat Racikan"
-              );
-            },
+            jenis: "obat-racikan",
+            sectionTitle: "Obat Racikan",
           },
-        ].map(({ label, color, prefix, button }, index) => (
+        ].map(({ label, color, prefix, jenis, sectionTitle }, index) => (
           <div
             key={index}
-            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>
+            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}
+          >
             <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
             <p className="text-6xl text-white w-full py-12 items-center justify-center">
               {prefix}{" "}
-              {latestBpjsJadi ||
-              latestBpjsRacikan ||
-              latestJadi ||
-              latestRacikan
-                ? prefix === "A"
-                  ? latestBpjsJadi
-                  : prefix === "B"
-                  ? latestBpjsRacikan
-                  : prefix === "C"
-                  ? latestJadi
-                  : prefix === "D"
-                  ? latestRacikan
+              {
+                latestBpjsJadi ||
+                latestBpjsRacikan ||
+                latestJadi ||
+                latestRacikan
+                  ? prefix === "A"
+                    ? latestBpjsJadi
+                    : prefix === "B"
+                    ? latestBpjsRacikan
+                    : prefix === "C"
+                    ? latestJadi
+                    : prefix === "D"
+                    ? latestRacikan
+                    : "0"
                   : "0"
-                : "0"}
+              }
             </p>
             <button
-              onClick={button}
-              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl">
+              onClick={() => handleButtonClick(jenis, sectionTitle, prefix)}
+              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl"
+            >
               Cetak Antrian
             </button>
           </div>
         ))}
       </div>
-
+  
       <Footer />
     </div>
   );
