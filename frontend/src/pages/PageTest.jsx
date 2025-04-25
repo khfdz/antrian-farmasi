@@ -13,43 +13,30 @@ const PageTest = () => {
   const playAudioWithTrimming = (audioPath) => {
     return new Promise((resolve, reject) => {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const audio = new Audio(audioPath);
-      audio.preload = 'auto';
-    
-      audio.onloadeddata = async () => {
-        try {
-          const response = await fetch(audioPath);
-          const arrayBuffer = await response.arrayBuffer();
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-          
-          // Misalnya kita tahu bahwa kata-kata diucapkan dalam 20% durasi
-          const wordDuration = 0.6; // 20% dari durasi audio
-          const silenceDuration = 0.4; // 80% dari durasi audio adalah silence
-      
+      const config = speedAudio[audioPath] || {};
+      const spokenPercent = config.spokenPercent ?? 0.8; 
+  
+      fetch(audioPath)
+        .then(res => res.arrayBuffer())
+        .then(buffer => audioContext.decodeAudioData(buffer))
+        .then(audioBuffer => {
           const duration = audioBuffer.duration;
-      
-          // Menghitung waktu berapa lama audio akan diputar
-          const playTime = wordDuration * duration;
-      
+          const playTime = duration * spokenPercent;
+  
           const source = audioContext.createBufferSource();
           source.buffer = audioBuffer;
-      
-          // Memulai audio dari 0 detik, lalu berhenti setelah 20% durasi
           source.connect(audioContext.destination);
-      
-          source.start(0);  // Mulai audio
-          source.stop(playTime);  // Hentikan audio setelah 20% durasi
-          
-          console.log(`Playing audio from ${audioPath}, stopping at ${playTime}s`);
-      
-          // Menyelesaikan setelah audio selesai
+          source.start(0);
+          source.stop(playTime);
+  
+          console.log(`🔉 Play ${audioPath} for ${playTime.toFixed(2)}s (from total ${duration.toFixed(2)}s)`);
+          console.log(`🎚 Spoken Percent: ${spokenPercent}`);
+  
           source.onended = () => {
-            resolve(); // Resolving Promise ketika audio selesai
+            resolve();
           };
-        } catch (error) {
-          reject(error); // Reject jika ada error
-        }
-      };
+        })
+        .catch(reject);
     });
   };
 

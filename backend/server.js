@@ -10,7 +10,9 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   "http://localhost:5173",  
-  "http://localhost:5000", 
+  "http://localhost:5000",
+  "http://192.168.1.148:5173", 
+  "http://192.168.1.148:5000", 
 ];
 
 app.use(

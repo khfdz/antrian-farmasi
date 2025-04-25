@@ -19,39 +19,63 @@ const PageView = () => {
 
   const playAudioSequence = async () => {
     if (isPlaying || audioQueue.length === 0) return;
-
     setIsPlaying(true);
-
+  
     let queue = [...audioQueue];
     setAudioQueue([]);
-
-    for (const audioPath of queue) {
+  
+    for (const [index, audioPath] of queue.entries()) {
       if (!audioPath) continue;
-
+  
       const audioConfig = speedAudio[audioPath] || {
         playbackRate: 1,
         delay: 0,
       };
+  
       const { playbackRate, delay } = audioConfig;
-
-      const audio = new Audio(audioPath);
-      audio.playbackRate = playbackRate;
-      audio.preload = "auto";
-
+  
       try {
-        await audio.play();
-        await new Promise((resolve) => (audio.onended = resolve));
-
+        await playAudioWithTrimming(audioPath);
+  
         if (delay !== 0) {
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       } catch (error) {
         console.error("Gagal memutar audio:", error);
       }
     }
-
+  
     setIsPlaying(false);
   };
+  
+
+  const playAudioWithTrimming = (audioPath) => {
+    return new Promise((resolve, reject) => {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const config = speedAudio[audioPath] || {};
+      const spokenPercent = config.spokenPercent ?? 0.8;
+  
+      fetch(audioPath)
+        .then(res => res.arrayBuffer())
+        .then(buffer => audioContext.decodeAudioData(buffer))
+        .then(audioBuffer => {
+          const duration = audioBuffer.duration;
+          const playTime = duration * spokenPercent;
+  
+          const source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(audioContext.destination);
+          source.start(0);
+          source.stop(playTime);
+  
+          source.onended = () => {
+            resolve();
+          };
+        })
+        .catch(reject);
+    });
+  };
+  
 
   useEffect(() => {
     playAudioSequence();

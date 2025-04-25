@@ -203,7 +203,6 @@ const PagePrint = () => {
   };
 
   const handleButtonClick = async (jenis, sectionTitle, prefix) => {
-    // Menampilkan SweetAlert2 untuk konfirmasi
     const result = await Swal.fire({
       title: "Konfirmasi",
       text: "Apakah Anda yakin ingin melanjutkan?",
@@ -214,7 +213,6 @@ const PagePrint = () => {
     });
   
     if (result.isConfirmed) {
-      // Jika user memilih "Iya", lanjutkan proses antrian
       const newQueue = await handleAntrian(jenis);
       handlePrint(
         {
@@ -225,7 +223,6 @@ const PagePrint = () => {
         sectionTitle
       );
     } else {
-      // Jika user memilih "Tidak", tidak melakukan apa-apa
       Swal.fire("Dibatalkan", "Proses antrian dibatalkan", "info");
     }
   };
