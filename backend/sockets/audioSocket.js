@@ -12,6 +12,7 @@ module.exports = (io) => {
 
     socket.on("updateQueueView", (data) => {
       io.emit("updateCallQueue", data);
+      io.emit("refreshQueue");
     });
 
     socket.on("refreshQueue", () => {

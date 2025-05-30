@@ -4,7 +4,7 @@ import PageCall from "./pages/PageCall";
 import PagePrint from "./pages/PagePrint";
 import PageHome from "./pages/PageHome";
 import PageView from "./pages/PageView";
-import PageTest from "./pages/PageTest";
+// import PageTest from "./pages/PageTest";
 import "./App.css";
 
 const App = () => {
@@ -15,7 +15,7 @@ const App = () => {
         <Route path="/print" element={<PagePrint />} />
         <Route path="/" element={<PageHome />} />
         <Route path="/view" element={<PageView />} />
-        <Route path="/test" element={<PageTest />} />
+        <Route path="/test" element={<Test />} />
       </Routes>
     </Router>
   );

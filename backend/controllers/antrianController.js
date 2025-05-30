@@ -465,6 +465,7 @@ const resetAntrian = (req, res) => {
             res.status(500).json({ message: "Failed to reset antrian_counter" });
           });
         }
+
         const promiseDb = db.promise();
 
         const tables = [
@@ -474,11 +475,17 @@ const resetAntrian = (req, res) => {
           "antrian_obat_jadi",
         ];
 
-        const deletePromises = tables.map((table) => {
-          return promiseDb.query(`DELETE FROM ${table}`);
+        const deleteAndInsertPromises = tables.map((table) => {
+          return promiseDb
+            .query(`DELETE FROM ${table}`)
+            .then(() => {
+              return promiseDb.query(
+                `INSERT INTO ${table} (id_antrian, no_antrian, waktu, status) VALUES (1, 0, 0, 0)`
+              );
+            });
         });
 
-        Promise.all(deletePromises)
+        Promise.all(deleteAndInsertPromises)
           .then(() => {
             db.query("COMMIT", (err) => {
               if (err) {
@@ -489,16 +496,15 @@ const resetAntrian = (req, res) => {
             });
           })
           .catch((err) => {
-            console.error("Error during deletion:", err);
+            console.error("Error during deletion or insertion:", err);
             db.query("ROLLBACK");
-            res.status(500).json({ message: "Failed to delete some queue data" });
+            res.status(500).json({ message: "Failed to reset queue data" });
           });
       }
     );
   });
 };
-
-//------------------------------------------------RESET DATABASE--------------------------------------------//
+//-------------------------------------------------RESET DATABASE--------------------------------------------//
 
 module.exports = {
   //-----------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//

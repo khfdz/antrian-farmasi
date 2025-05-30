@@ -113,7 +113,7 @@ const PageCall = () => {
       icon: "info",
       showConfirmButton: false,
       allowOutsideClick: false,
-      timer: 16000,
+      timer: 13000,
     }).then(() => {
       Swal.fire({
         title: "Antrian Selesai Dipanggil!",
