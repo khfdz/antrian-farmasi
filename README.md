@@ -18,6 +18,13 @@ Backend: Node.js + Express
 Database: MySQL
 Real-Time Communication: WebSocket
 
+## 🚀 Teknologi yang Digunakan
+- **Frontend:** React + Vite + TailwindCSS  
+- **Backend:** Node.js + Express  
+- **Database:** MySQL  
+- **Real-Time Communication:** WebSocket  
+
+
 ```📂 Struktur Proyek
 antrian-farmasi/
 ├── backend/
