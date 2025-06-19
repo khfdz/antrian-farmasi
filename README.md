@@ -13,17 +13,10 @@ Aplikasi Antrian Farmasi adalah sistem berbasis web untuk mengelola antrian farm
 - Integrasi Database: Penyimpanan data antrian yang terstruktur menggunakan MySQL.
 
 🚀 Teknologi yang Digunakan
-Frontend: React + Vite + TailwindCSS
-Backend: Node.js + Express
-Database: MySQL
-Real-Time Communication: WebSocket
-
-## 🚀 Teknologi yang Digunakan
-- **Frontend:** React + Vite + TailwindCSS  
-- **Backend:** Node.js + Express  
-- **Database:** MySQL  
-- **Real-Time Communication:** WebSocket  
-
+- Frontend: React + Vite + TailwindCSS
+- Backend: Node.js + Express
+- Database: MySQL
+- Real-Time Communication: WebSocket
 
 ```📂 Struktur Proyek
 antrian-farmasi/
