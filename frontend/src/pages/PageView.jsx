@@ -170,6 +170,7 @@ const PageView = () => {
         text: "Seluruh antrian telah direset oleh sistem.",
         icon: "info",
         confirmButtonText: "OK",
+        timer: 4000,
       });
       fetchAllQueues();
     });
