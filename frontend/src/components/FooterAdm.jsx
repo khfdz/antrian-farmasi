@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import React from "react";
 
 const quotes = [
   "Tetap semangat! Jangan lupa istirahat yaa 😊",
@@ -12,31 +12,51 @@ const quotes = [
 
 const Footer = () => {
   return (
-    <div className="bg-biru1 w-full h-20 flex items-center text-white text-2xl py-8 overflow-hidden fixed bottom-0">
-      <motion.div
-        className="whitespace-nowrap flex"
-        animate={{
-          x: ["2500vw", "-100%"],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 500,
-          ease: "linear",
-        }}>
-        {quotes.map((quote, index) => (
-          <motion.span
-            key={index}
-            className="mr-[1200px] ml-[2000px] inline-block"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              delay: index * 2,
-              duration: 2,
-            }}>
-            {quote}
-          </motion.span>
-        ))}
-      </motion.div>
+    <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] w-full h-20 flex items-center text-white py-8 overflow-hidden fixed bottom-0 shadow-2xl relative">
+      {/* Background Glow */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-0 w-32 h-32 bg-white/20 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-2 right-24 w-24 h-24 bg-white/10 rounded-full blur-lg animate-ping"></div>
+        <div
+          className="absolute bottom-0 right-0 w-40 h-40 bg-white/15 rounded-full blur-2xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+      </div>
+
+      {/* Scrolling Quotes */}
+      <div className="relative z-10 w-full overflow-hidden">
+        <div className="marquee whitespace-nowrap flex items-center">
+          {quotes.map((quote, index) => (
+            <span
+              key={index}
+              className="mx-[400px] inline-block text-lg font-semibold drop-shadow-md"
+            >
+              {quote}
+            </span>
+          ))}
+          {/* Duplikat untuk loop halus */}
+          {quotes.map((quote, index) => (
+            <span
+              key={`copy-${index}`}
+              className="mx-24 inline-block text-lg font-semibold drop-shadow-md"
+            >
+              {quote}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee {
+          display: flex;
+          width: 200%;
+          animation: marquee 60s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };

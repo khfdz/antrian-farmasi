@@ -228,8 +228,9 @@ const PagePrint = () => {
   };
 
   return (
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
+    <>
       <Navbar />
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
   
       <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
         {[
@@ -296,8 +297,9 @@ const PagePrint = () => {
         ))}
       </div>
   
-      <Footer />
     </div>
+      <Footer />
+    </>
   );
 };
 

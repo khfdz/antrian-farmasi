@@ -166,8 +166,9 @@ const PageCall = () => {
   }, [fetchQueueData]);
 
   return (
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
+    <>
       <Navbar />
+    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
       <div className="md:mt-22 mt-24 mb-28 px-12 py-4 flex flex-wrap gap-6 w-full justify-center items-cente">
         {[
           {
@@ -273,8 +274,9 @@ const PageCall = () => {
           )
         )}
       </div>
-      <Footer />
     </div>
+      <Footer />
+    </>
   );
 };
 

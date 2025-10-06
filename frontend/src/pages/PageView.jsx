@@ -12,6 +12,7 @@ const socket = io(`http://${localAccess}`);
 const PageView = () => {
   const [audioQueue, setAudioQueue] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [activeQueue, setActiveQueue] = useState(null);
 
   const [queueData, setQueueData] = useState({
     "bpjs/obat-jadi": null,
@@ -99,69 +100,155 @@ const PageView = () => {
     });
   };
 
- const handlePlayCallAudio = async (data) => {
-  try {
-    const response = await axios.get(`http://${localAccess}/api/audio/call`, {
-      params: {
-        letter: data.letter,
-        number: data.number,
-        loket: data.loket,
-        type: data.type,
-      },
-    });
-
-    const audioSequence = response.data?.sequence;
-
-    if (audioSequence && Array.isArray(audioSequence)) {
-      setAudioQueue((prevQueue) => [...prevQueue, ...audioSequence]);
-
-      const colorClass =
-        data.letter === "A" || data.letter === "B" ? "bg-biru1" : "bg-hijau1";
-
-      Swal.fire({
-        icon: "info",
-        iconColor: "#FF5733",
-        html: `
-          <div class="flex flex-col items-center justify-center text-center p-6 w-full max-w-[100%]">
-            <span class="text-4xl font-bold text-gray-700 mb-6 animate-fade-in whitespace-nowrap">
-              Panggilan Untuk Antrian
-            </span>
-            <div class="text-6xl font-bold text-white animate-bounce ${colorClass} px-6 py-2 rounded-xl shadow-lg">
-              ${data.letter} ${data.number}
-            </div>
-            <div class="text-4xl text-gray-700 font-bold mt-6">
-              <span class="mb-4 whitespace-nowrap">Silakan menuju</span>
-            </div>
-            <span class="text-white mt-6 text-5xl font-bold ${colorClass} px-6 py-2 rounded-xl shadow-lg animate-bounce">
-              LOKET ${data.loket}
-            </span>
-          </div>
-        `,
-        showConfirmButton: false,
-        timer: 19000,
-        customClass: {
-          popup: "bg-white shadow-lg rounded-lg p-6",
+  const handlePlayCallAudio = async (data) => {
+    try {
+      const response = await axios.get(`http://${localAccess}/api/audio/call`, {
+        params: {
+          letter: data.letter,
+          number: data.number,
+          loket: data.loket,
+          type: data.type,
         },
       });
 
-      await playAudioSequence();
+      const audioSequence = response.data?.sequence;
 
-      await fetchAllQueues();
+      if (audioSequence && Array.isArray(audioSequence)) {
+        setAudioQueue((prevQueue) => [...prevQueue, ...audioSequence]);
+        setActiveQueue(data.letter);
 
-      socket.emit("confirmCallAudioReceived", data);
-    } else {
-      console.error("Audio sequence tidak ditemukan atau tidak valid:", audioSequence);
+        const gradientClass =
+          data.letter === "A" || data.letter === "B"
+            ? "from-blue-500 via-blue-600 to-blue-700"
+            : "from-emerald-500 via-emerald-600 to-emerald-700";
+
+        Swal.fire({
+          html: `
+            <div class="relative overflow-hidden bg-white rounded-3xl p-12">
+              <!-- Background Pattern -->
+              <div class="absolute inset-0 opacity-5">
+                <div class="absolute inset-0 bg-gradient-to-br ${gradientClass}"></div>
+              </div>
+              
+              <!-- Content -->
+              <div class="relative z-10 flex flex-col items-center justify-center space-y-8">
+                
+                <!-- Bell Icon dengan Animasi -->
+                <div class="relative">
+                  <div class="absolute inset-0 bg-gradient-to-r ${gradientClass} blur-2xl opacity-40 animate-pulse"></div>
+                  <div class="relative bg-gradient-to-r ${gradientClass} rounded-full p-6 shadow-2xl animate-bounce">
+                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Title -->
+                <div class="text-center">
+                  <h1 class="text-4xl font-black bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent mb-2">
+                    PANGGILAN ANTRIAN
+                  </h1>
+                  <div class="flex items-center justify-center gap-2 mt-4">
+                    <div class="h-1 w-16 bg-gradient-to-r ${gradientClass} rounded-full"></div>
+                    <div class="h-1 w-8 bg-gradient-to-r ${gradientClass} rounded-full opacity-50"></div>
+                  </div>
+                </div>
+
+                <!-- Queue Number - LEBIH BESAR -->
+                <div class="relative my-8">
+                  <!-- Glowing Ring -->
+                  <div class="absolute inset-0 bg-gradient-to-r ${gradientClass} blur-3xl opacity-30 animate-pulse"></div>
+                  
+                  <!-- Number Card -->
+                  <div class="relative bg-gradient-to-br ${gradientClass} rounded-3xl p-8 shadow-2xl transform hover:scale-105 transition-all duration-300">
+                    <div class="text-center">
+                      <div class="text-white text-9xl font-black tracking-wider leading-none">
+                        ${data.letter}${data.number}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Divider dengan Icon -->
+                <div class="flex items-center justify-center gap-4 my-6">
+                  <div class="h-px w-20 bg-gradient-to-r ${gradientClass} opacity-30"></div>
+                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                  </svg>
+                  <div class="h-px w-20 bg-gradient-to-r ${gradientClass} opacity-30"></div>
+                </div>
+
+                <!-- Silakan Menuju Text -->
+                <div class="text-center">
+                  <p class="text-3xl text-gray-700 font-bold mb-6">
+                    Silahkan Menuju
+                  </p>
+                </div>
+
+                <!-- Loket Card -->
+                <div class="relative">
+                  <div class="absolute inset-0 bg-gradient-to-r ${gradientClass} blur-xl opacity-20"></div>
+                  <div class="relative bg-white border-4 border-gradient-to-r ${gradientClass} rounded-2xl px-12 py-6 shadow-xl">
+                    <div class="flex items-center gap-4">
+                      <svg class="w-12 h-12 bg-gradient-to-r ${gradientClass} rounded-lg p-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                      <div class="text-left">
+   
+                        <p class="text-5xl font-black bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent">
+                          LOKET ${data.loket}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+               
+
+              </div>
+            </div>
+
+            <style>
+              @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+              }
+              .animate-bounce {
+                animation: bounce 2s ease-in-out infinite;
+              }
+            </style>
+          `,
+          showConfirmButton: false,
+          timer: 19000,
+          width: '700px',
+          padding: 0,
+          background: 'transparent',
+          backdrop: 'rgba(0,0,0,0.4)',
+          customClass: {
+            popup: '!bg-transparent !shadow-none',
+          },
+        });
+
+        await playAudioSequence();
+        await fetchAllQueues();
+        
+        setTimeout(() => setActiveQueue(null), 2000);
+
+        socket.emit("confirmCallAudioReceived", data);
+      } else {
+        console.error("Audio sequence tidak ditemukan atau tidak valid:", audioSequence);
+      }
+    } catch (error) {
+      console.error("Error saat memanggil API audio call:", error);
     }
-  } catch (error) {
-    console.error("Error saat memanggil API audio call:", error);
-  }
-};
+  };
 
   useEffect(() => {
     fetchAllQueues();
 
     socket.emit("joinRoom", "callRoom");
-    
+
     socket.on("playCallAudio", handlePlayCallAudio);
     socket.on("refreshQueue", fetchAllQueues);
     socket.on("queueReset", () => {
@@ -195,34 +282,115 @@ const PageView = () => {
     D: "obat-racikan",
   };
 
+  // Komponen Card Modern
+  const QueueCard = ({ label, prefix, colorScheme, data, isActive }) => {
+    const isBlue = colorScheme === "blue";
+    const bgGradient = isBlue
+      ? "from-blue-500 via-blue-600 to-blue-700"
+      : "from-emerald-500 via-emerald-600 to-emerald-700";
+    const hoverGradient = isBlue
+      ? "hover:from-blue-600 hover:via-blue-700 hover:to-blue-800"
+      : "hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800";
+
+    return (
+      <div
+        className={`relative group transition-all duration-500 transform ${
+          isActive ? "scale-105 z-10" : "hover:scale-105"
+        }`}
+      >
+        {/* Glow effect */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-r ${bgGradient} blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 rounded-3xl ${
+            isActive ? "opacity-50 animate-pulse" : ""
+          }`}
+        ></div>
+
+        <div
+          className={`relative bg-white rounded-3xl shadow-xl overflow-hidden w-[320px] transition-all duration-500 ${
+            isActive ? "ring-4 ring-yellow-400 shadow-2xl" : ""
+          }`}
+        >
+          {/* Header dengan gradient */}
+          <div
+            className={`bg-gradient-to-r ${bgGradient} ${hoverGradient} p-5 relative overflow-hidden transition-all duration-300`}
+          >
+            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+            <h2 className="text-white text-2xl font-bold text-center relative z-10">
+              {label}
+            </h2>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-16 -mt-16"></div>
+          </div>
+
+          {/* Body dengan animasi number */}
+          <div className="p-10 bg-gradient-to-br from-gray-50 to-white">
+            <div className="text-center">
+              <div className="inline-block relative">
+                {/* Hilangkan efek blur & glow */}
+                <div
+                  className={`absolute inset-0 bg-transparent ${
+                    isActive ? "" : ""
+                  }`}
+                ></div>
+
+                <div className="relative bg-white px-8 py-6 rounded-2xl ">
+                  <span
+                    className={`text-8xl font-black bg-gradient-to-r ${bgGradient} bg-clip-text text-transparent transition-all duration-500 ${
+                      isActive ? "animate-pulse" : ""
+                    }`}
+                  >
+                    {prefix} {data ? data.no_antrian : "0"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100">
       <Navbar />
 
-      <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
-        {[
-          { label: "Obat Non Racikan", color: "bg-biru1", prefix: "A" },
-          { label: "Obat Racikan", color: "bg-biru1", prefix: "B" },
-          { label: "Obat Non Racikan", color: "bg-hijau1", prefix: "C" },
-          { label: "Obat Racikan", color: "bg-hijau1", prefix: "D" },
-        ].map(({ label, color, prefix }, index) => {
-          const key = prefixToKey[prefix];
-          const data = queueData[key];
-          return (
-            <div
+      <main className="flex-grow flex flex-col items-center justify-center py-12 px-4">
+        {/* Queue cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 -ml-24 gap-48 max-w-7xl w-full">
+          {[
+            { label: "Obat Non Racikan", color: "blue", prefix: "A", key: "bpjs/obat-jadi" },
+            { label: "Obat Racikan", color: "blue", prefix: "B", key: "bpjs/obat-racikan" },
+            { label: "Obat Non Racikan", color: "green", prefix: "C", key: "obat-jadi" },
+            { label: "Obat Racikan", color: "green", prefix: "D", key: "obat-racikan" },
+          ].map((item, index) => (
+            <QueueCard
               key={index}
-              className={`${color} w-[29.5vh] md:w-[35vh] h-auto text-center rounded-md shadow-xl`}
-            >
-              <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
-              <p className="text-7xl text-white w-full py-12 items-center justify-center shadow-xl">
-                {prefix} {data ? data.no_antrian : "0"}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+              label={item.label}
+              prefix={item.prefix}
+              colorScheme={item.color}
+              data={queueData[item.key]}
+              isActive={activeQueue === item.prefix}
+            />
+          ))}
+        </div>
+      </main>
 
       <Footer />
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.8s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
