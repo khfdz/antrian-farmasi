@@ -1,509 +1,440 @@
 const db = require("../config/mysqlDB");
 
-//----------------------------------------------------------ANTRIAN BPJS OBAT RACIKAN----------------------------//
-const tambahAntrianBpjsObatRacikan = (req, res) => {
-  db.query(
-    "SELECT last_no_antrian_bpjs_racikan FROM antrian_counter WHERE id = 1",
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+// ---------------- ANTRIAN BPJS OBAT RACIKAN -----------------
 
-      if (!result || result.length === 0) {
-        return res
-          .status(404)
-          .json({ error: "Data not found in antrian_counter" });
-      }
+const tambahAntrianBpjsObatRacikan = async (req, res) => {
+  try {
+    const [counter] = await db.query(
+      "SELECT last_no_antrian_bpjs_racikan FROM antrian_counter WHERE id = 1"
+    );
 
-      const lastNoAntrian = result[0].last_no_antrian_bpjs_racikan;
-      const newNoAntrian = lastNoAntrian + 1;
-
-      db.query(
-        "INSERT INTO antrian_bpjs_obat_racikan (no_antrian) VALUES (?)",
-        [newNoAntrian],
-        (err, result) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
-
-          db.query(
-            "UPDATE antrian_counter SET last_no_antrian_bpjs_racikan = ? WHERE id = 1",
-            [newNoAntrian],
-            (err) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
-
-              res.status(201).json({
-                id: result.insertId,
-                no_antrian: newNoAntrian,
-              });
-            }
-          );
-        }
-      );
+    if (!counter.length) {
+      return res.status(404).json({ error: "Counter not found" });
     }
-  );
+
+    const newNo = counter[0].last_no_antrian_bpjs_racikan + 1;
+
+    const [insert] = await db.query(
+      "INSERT INTO antrian_bpjs_obat_racikan (no_antrian) VALUES (?)",
+      [newNo]
+    );
+
+    await db.query(
+      "UPDATE antrian_counter SET last_no_antrian_bpjs_racikan = ? WHERE id = 1",
+      [newNo]
+    );
+
+    res.status(201).json({
+      id: insert.insertId,
+      no_antrian: newNo,
+    });
+  } catch (err) {
+    console.error("Error tambahAntrianBpjsObatRacikan:", err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianBpjsObatRacikan = (req, res) => {
-  db.query("SELECT * FROM antrian_bpjs_obat_racikan", (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(result);
-  });
+const getAllAntrianBpjsObatRacikan = async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM antrian_bpjs_obat_racikan");
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAntrianBpjsObatRacikanLatest = (req, res) => {
-  db.query(
-    "SELECT no_antrian FROM antrian_bpjs_obat_racikan ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1",
-    (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      if (result.length > 0) {
-        res.status(200).json(result[0]);
-      } else {
-        res.status(404).json({ message: "No antrian found" });
-      }
-    }
-  );
+const getAntrianBpjsObatRacikanLatest = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT no_antrian FROM antrian_bpjs_obat_racikan ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1"
+    );
+
+    if (!rows.length) return res.status(404).json({ message: "No antrian found" });
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianBpjsObatRacikanByStatus = (req, res) => {
-  const status = req.params.status;
-
-  db.query(
-    "SELECT * FROM antrian_bpjs_obat_racikan WHERE status = ? ORDER BY waktu ASC",
-    [status],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(200).json(result);
-    }
-  );
+const getAllAntrianBpjsObatRacikanByStatus = async (req, res) => {
+  try {
+    const status = req.params.status;
+    const [rows] = await db.query(
+      "SELECT * FROM antrian_bpjs_obat_racikan WHERE status = ? ORDER BY waktu ASC",
+      [status]
+    );
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const ubahStatusAntrianBpjsObatRacikan = (req, res) => {
-  const { id } = req.params;
+const ubahStatusAntrianBpjsObatRacikan = async (req, res) => {
+  try {
+    const id = req.params.id;
 
-  db.query(
-    "UPDATE antrian_bpjs_obat_racikan SET status = 1 WHERE id_antrian = ?",
-    [id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+    const [result] = await db.query(
+      "UPDATE antrian_bpjs_obat_racikan SET status = 1 WHERE id_antrian = ?",
+      [id]
+    );
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Antrian not found" });
-      }
+    if (!result.affectedRows)
+      return res.status(404).json({ error: "Antrian not found" });
 
-      res.status(200).json({
-        message: `Antrian with ID ${id} updated to status 1 successfully`,
-      });
-    }
-  );
+    res.status(200).json({
+      message: `Antrian ${id} updated successfully`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
 //---------------------------------------------------ANTRIAN BPJS OBAT RACIKAN-----------------------------------//
 
 //---------------------------------------------ANTRIAN BPJS OBAT JADI-------------------------------------------//
-const tambahAntrianBpjsObatJadi = (req, res) => {
-  db.query(
-    "SELECT last_no_antrian_bpjs_jadi FROM antrian_counter WHERE id = 1",
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+// ---------------- ANTRIAN BPJS OBAT JADI -----------------
 
-      if (!result || result.length === 0) {
-        return res
-          .status(404)
-          .json({ error: "Data not found in antrian_counter" });
-      }
+const tambahAntrianBpjsObatJadi = async (req, res) => {
+  try {
+    const [counter] = await db.query(
+      "SELECT last_no_antrian_bpjs_jadi FROM antrian_counter WHERE id = 1"
+    );
 
-      const lastNoAntrian = result[0].last_no_antrian_bpjs_jadi;
-      const newNoAntrian = lastNoAntrian + 1;
-
-      db.query(
-        "INSERT INTO antrian_bpjs_obat_jadi (no_antrian) VALUES (?)",
-        [newNoAntrian],
-        (err, result) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
-
-          db.query(
-            "UPDATE antrian_counter SET last_no_antrian_bpjs_jadi = ? WHERE id = 1",
-            [newNoAntrian],
-            (err) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
-
-              res.status(201).json({
-                id: result.insertId,
-                no_antrian: newNoAntrian,
-              });
-            }
-          );
-        }
-      );
+    if (!counter.length) {
+      return res.status(404).json({ error: "Counter not found" });
     }
-  );
+
+    const newNo = counter[0].last_no_antrian_bpjs_jadi + 1;
+
+    const [insert] = await db.query(
+      "INSERT INTO antrian_bpjs_obat_jadi (no_antrian) VALUES (?)",
+      [newNo]
+    );
+
+    await db.query(
+      "UPDATE antrian_counter SET last_no_antrian_bpjs_jadi = ? WHERE id = 1",
+      [newNo]
+    );
+
+    res.status(201).json({
+      id: insert.insertId,
+      no_antrian: newNo,
+    });
+  } catch (err) {
+    console.error("Error tambahAntrianBpjsObatJadi:", err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianBpjsObatJadi = (req, res) => {
-  db.query("SELECT * FROM antrian_bpjs_obat_jadi", (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(result);
-  });
+const getAllAntrianBpjsObatJadi = async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM antrian_bpjs_obat_jadi");
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAntrianBpjsObatJadiLatest = (req, res) => {
-  db.query(
-    "SELECT no_antrian FROM antrian_bpjs_obat_jadi ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1",
-    (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      if (result.length > 0) {
-        res.status(200).json(result[0]);
-      } else {
-        res.status(404).json({ message: "No antrian found" });
-      }
-    }
-  );
+const getAntrianBpjsObatJadiLatest = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT no_antrian FROM antrian_bpjs_obat_jadi ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1"
+    );
+
+    if (!rows.length) return res.status(404).json({ message: "No antrian found" });
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianBpjsObatJadiByStatus = (req, res) => {
-  const status = req.params.status;
+const getAllAntrianBpjsObatJadiByStatus = async (req, res) => {
+  try {
+    const status = req.params.status;
 
-  db.query(
-    "SELECT * FROM antrian_bpjs_obat_jadi WHERE status = ? ORDER BY waktu ASC",
-    [status],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(200).json(result);
-    }
-  );
+    const [rows] = await db.query(
+      "SELECT * FROM antrian_bpjs_obat_jadi WHERE status = ? ORDER BY waktu ASC",
+      [status]
+    );
+
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const ubahStatusAntrianBpjsObatJadi = (req, res) => {
-  const { id } = req.params;
+const ubahStatusAntrianBpjsObatJadi = async (req, res) => {
+  try {
+    const id = req.params.id;
 
-  db.query(
-    "UPDATE antrian_bpjs_obat_jadi SET status = 1 WHERE id_antrian = ?",
-    [id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+    const [result] = await db.query(
+      "UPDATE antrian_bpjs_obat_jadi SET status = 1 WHERE id_antrian = ?",
+      [id]
+    );
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Antrian not found" });
-      }
+    if (!result.affectedRows)
+      return res.status(404).json({ error: "Antrian not found" });
 
-      res.status(200).json({
-        message: `Antrian with ID ${id} updated to status 1 successfully`,
-      });
-    }
-  );
+    res.status(200).json({
+      message: `Antrian ${id} updated successfully`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
 //---------------------------------------------ANTRIAN BPJS OBAT JADI-------------------------------------------//
 
 //----------------------------------------------ANTRIAN OBAT RACIKAN--------------------------------------------//'
-const tambahAntrianObatRacikan = (req, res) => {
-  db.query(
-    "SELECT last_no_antrian_racikan FROM antrian_counter WHERE id = 1",
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+// ---------------- ANTRIAN OBAT RACIKAN (UMUM) -----------------
 
-      if (!result || result.length === 0) {
-        return res
-          .status(404)
-          .json({ error: "Data not found in antrian_counter" });
-      }
+const tambahAntrianObatRacikan = async (req, res) => {
+  try {
+    const [counter] = await db.query(
+      "SELECT last_no_antrian_racikan FROM antrian_counter WHERE id = 1"
+    );
 
-      const lastNoAntrian = result[0].last_no_antrian_racikan;
-      const newNoAntrian = lastNoAntrian + 1;
-
-      db.query(
-        "INSERT INTO antrian_obat_racikan (no_antrian) VALUES (?)",
-        [newNoAntrian],
-        (err, result) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
-
-          db.query(
-            "UPDATE antrian_counter SET last_no_antrian_racikan = ? WHERE id = 1",
-            [newNoAntrian],
-            (err) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
-
-              res.status(201).json({
-                id: result.insertId,
-                no_antrian: newNoAntrian,
-              });
-            }
-          );
-        }
-      );
+    if (!counter.length) {
+      return res.status(404).json({ error: "Counter not found" });
     }
-  );
+
+    const newNo = counter[0].last_no_antrian_racikan + 1;
+
+    const [insert] = await db.query(
+      "INSERT INTO antrian_obat_racikan (no_antrian) VALUES (?)",
+      [newNo]
+    );
+
+    await db.query(
+      "UPDATE antrian_counter SET last_no_antrian_racikan = ? WHERE id = 1",
+      [newNo]
+    );
+
+    res.status(201).json({
+      id: insert.insertId,
+      no_antrian: newNo,
+    });
+  } catch (err) {
+    console.error("Error tambahAntrianObatRacikan:", err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianObatRacikan = (req, res) => {
-  db.query("SELECT * FROM antrian_obat_racikan", (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(result);
-  });
+const getAllAntrianObatRacikan = async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM antrian_obat_racikan");
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAntrianObatRacikanLatest = (req, res) => {
-  db.query(
-    "SELECT no_antrian FROM antrian_obat_racikan ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1",
-    (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      if (result.length > 0) {
-        res.status(200).json(result[0]);
-      } else {
-        res.status(404).json({ message: "No antrian found" });
-      }
-    }
-  );
+const getAntrianObatRacikanLatest = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT no_antrian FROM antrian_obat_racikan ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1"
+    );
+
+    if (!rows.length) return res.status(404).json({ message: "No antrian found" });
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianObatRacikanByStatus = (req, res) => {
-  const status = req.params.status;
+const getAllAntrianObatRacikanByStatus = async (req, res) => {
+  try {
+    const status = req.params.status;
 
-  db.query(
-    "SELECT * FROM antrian_obat_racikan WHERE status = ? ORDER BY waktu ASC",
-    [status],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(200).json(result);
-    }
-  );
+    const [rows] = await db.query(
+      "SELECT * FROM antrian_obat_racikan WHERE status = ? ORDER BY waktu ASC",
+      [status]
+    );
+
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const ubahStatusAntrianObatRacikan = (req, res) => {
-  const { id } = req.params;
+const ubahStatusAntrianObatRacikan = async (req, res) => {
+  try {
+    const id = req.params.id;
 
-  db.query(
-    "UPDATE antrian_obat_racikan SET status = 1 WHERE id_antrian = ?",
-    [id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+    const [result] = await db.query(
+      "UPDATE antrian_obat_racikan SET status = 1 WHERE id_antrian = ?",
+      [id]
+    );
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Antrian not found" });
-      }
+    if (!result.affectedRows)
+      return res.status(404).json({ error: "Antrian not found" });
 
-      res.status(200).json({
-        message: `Antrian with ID ${id} updated to status 1 successfully`,
-      });
-    }
-  );
+    res.status(200).json({
+      message: `Antrian ${id} updated successfully`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
 //----------------------------------------------ANTRIAN OBAT RACIKAN--------------------------------------------//
 
 //----------------------------------------------ANTRIAN OBAT JADI--------------------------------------------//
-const tambahAntrianObatJadi = (req, res) => {
-  db.query(
-    "SELECT last_no_antrian_jadi FROM antrian_counter WHERE id = 1",
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+// ---------------- ANTRIAN OBAT JADI (UMUM) -----------------
 
-      if (!result || result.length === 0) {
-        return res
-          .status(404)
-          .json({ error: "Data not found in antrian_counter" });
-      }
+const tambahAntrianObatJadi = async (req, res) => {
+  try {
+    const [counter] = await db.query(
+      "SELECT last_no_antrian_jadi FROM antrian_counter WHERE id = 1"
+    );
 
-      const lastNoAntrian = result[0].last_no_antrian_jadi;
-      const newNoAntrian = lastNoAntrian + 1;
-
-      db.query(
-        "INSERT INTO antrian_obat_jadi (no_antrian) VALUES (?)",
-        [newNoAntrian],
-        (err, result) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
-
-          db.query(
-            "UPDATE antrian_counter SET last_no_antrian_jadi = ? WHERE id = 1",
-            [newNoAntrian],
-            (err) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
-
-              res.status(201).json({
-                id: result.insertId,
-                no_antrian: newNoAntrian,
-              });
-            }
-          );
-        }
-      );
+    if (!counter.length) {
+      return res.status(404).json({ error: "Counter not found" });
     }
-  );
+
+    const newNo = counter[0].last_no_antrian_jadi + 1;
+
+    const [insert] = await db.query(
+      "INSERT INTO antrian_obat_jadi (no_antrian) VALUES (?)",
+      [newNo]
+    );
+
+    await db.query(
+      "UPDATE antrian_counter SET last_no_antrian_jadi = ? WHERE id = 1",
+      [newNo]
+    );
+
+    res.status(201).json({
+      id: insert.insertId,
+      no_antrian: newNo,
+    });
+  } catch (err) {
+    console.error("Error tambahAntrianObatJadi:", err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianObatJadi = (req, res) => {
-  db.query("SELECT * FROM antrian_obat_jadi", (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(result);
-  });
+const getAllAntrianObatJadi = async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM antrian_obat_jadi");
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAntrianObatJadiLatest = (req, res) => {
-  db.query(
-    "SELECT no_antrian FROM antrian_obat_jadi ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1",
-    (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      if (result.length > 0) {
-        res.status(200).json(result[0]);
-      } else {
-        res.status(404).json({ message: "No antrian found" });
-      }
+const getAntrianObatJadiLatest = async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT no_antrian FROM antrian_obat_jadi ORDER BY CAST(no_antrian AS UNSIGNED) DESC LIMIT 1"
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "No antrian found" });
     }
-  );
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const getAllAntrianObatJadiByStatus = (req, res) => {
-  const status = req.params.status;
+const getAllAntrianObatJadiByStatus = async (req, res) => {
+  try {
+    const status = req.params.status;
 
-  db.query(
-    "SELECT * FROM antrian_obat_jadi WHERE status = ? ORDER BY waktu ASC",
-    [status],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(200).json(result);
-    }
-  );
+    const [rows] = await db.query(
+      "SELECT * FROM antrian_obat_jadi WHERE status = ? ORDER BY waktu ASC",
+      [status]
+    );
+
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-const ubahStatusAntrianObatJadi = (req, res) => {
-  const { id } = req.params;
+const ubahStatusAntrianObatJadi = async (req, res) => {
+  try {
+    const id = req.params.id;
 
-  db.query(
-    "UPDATE antrian_obat_jadi SET status = 1 WHERE id_antrian = ?",
-    [id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+    const [result] = await db.query(
+      "UPDATE antrian_obat_jadi SET status = 1 WHERE id_antrian = ?",
+      [id]
+    );
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Antrian not found" });
-      }
-
-      res.status(200).json({
-        message: `Antrian with ID ${id} updated to status 1 successfully`,
-      });
+    if (!result.affectedRows) {
+      return res.status(404).json({ error: "Antrian not found" });
     }
-  );
+
+    res.status(200).json({
+      message: `Antrian ${id} updated to status 1 successfully`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
 //----------------------------------------------ANTRIAN OBAT JADI--------------------------------------------//
 
-//-------------------------------------------------RESET DATABASE--------------------------------------------//
-const resetAntrian = (req, res) => {
-  db.query("START TRANSACTION", (err) => {
-    if (err) {
-      console.error("Error starting transaction:", err);
-      return res.status(500).json({ message: "Transaction error" });
-    }
+// --------------------- RESET ANTRIAN ---------------------
 
-    db.query(
-      `UPDATE antrian_counter 
-      SET 
-        last_no_antrian = 0, 
-        last_no_antrian_bpjs_jadi = 0, 
-        last_no_antrian_bpjs_racikan = 0, 
-        last_no_antrian_racikan = 0, 
+const resetAntrian = async (req, res) => {
+  const conn = await db.getConnection(); // ambil dedicated connection untuk transaksi
+
+  try {
+    await conn.beginTransaction(); // 🔥 mulai transaksi
+
+    // 🔄 Reset semua counter
+    await conn.query(`
+      UPDATE antrian_counter SET
+        last_no_antrian = 0,
+        last_no_antrian_bpjs_jadi = 0,
+        last_no_antrian_bpjs_racikan = 0,
+        last_no_antrian_racikan = 0,
         last_no_antrian_jadi = 0,
         updated_at = NOW()
-      WHERE id = 1`,
-      (err) => {
-        if (err) {
-          console.error("Error resetting antrian_counter:", err);
-          return db.query("ROLLBACK", () => {
-            res.status(500).json({ message: "Failed to reset antrian_counter" });
-          });
-        }
+      WHERE id = 1
+    `);
 
-        const promiseDb = db.promise();
+    // Semua tabel antrian
+    const tables = [
+      "antrian_bpjs_obat_racikan",
+      "antrian_bpjs_obat_jadi",
+      "antrian_obat_racikan",
+      "antrian_obat_jadi",
+    ];
 
-        const tables = [
-          "antrian_bpjs_obat_racikan",
-          "antrian_bpjs_obat_jadi",
-          "antrian_obat_racikan",
-          "antrian_obat_jadi",
-        ];
+    // 🔥 Reset semua tabel
+    for (const table of tables) {
+      await conn.query(`DELETE FROM ${table}`);
+      await conn.query(
+        `INSERT INTO ${table} (id_antrian, no_antrian, waktu, status)
+         VALUES (1, 0, 0, 0)`
+      );
+    }
 
-        const deleteAndInsertPromises = tables.map((table) => {
-          return promiseDb
-            .query(`DELETE FROM ${table}`)
-            .then(() => {
-              return promiseDb.query(
-                `INSERT INTO ${table} (id_antrian, no_antrian, waktu, status) VALUES (1, 0, 0, 0)`
-              );
-            });
-        });
+    await conn.commit(); // 💾 simpan transaksi
 
-        Promise.all(deleteAndInsertPromises)
-          .then(() => {
-            db.query("COMMIT", (err) => {
-              if (err) {
-                console.error("Error committing transaction:", err);
-                return res.status(500).json({ message: "Commit failed" });
-              }
-              res.status(200).json({ message: "Queue and counter reset successfully!" });
-            });
-          })
-          .catch((err) => {
-            console.error("Error during deletion or insertion:", err);
-            db.query("ROLLBACK");
-            res.status(500).json({ message: "Failed to reset queue data" });
-          });
-      }
-    );
-  });
+    res.status(200).json({
+      message: "Queue and counter reset successfully",
+    });
+  } catch (err) {
+    console.error("❌ Error in resetAntrian:", err);
+    await conn.rollback(); // ⛔ rollback kalau error
+
+    res.status(500).json({
+      message: "Failed to reset queue data",
+      error: err.message,
+    });
+  } finally {
+    conn.release(); // pastikan koneksi dilepas
+  }
 };
+
 //-------------------------------------------------RESET DATABASE--------------------------------------------//
 
 module.exports = {

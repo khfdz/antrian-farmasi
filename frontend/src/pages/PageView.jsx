@@ -322,7 +322,7 @@ const PageView = () => {
           </div>
 
           {/* Body dengan animasi number */}
-          <div className="p-10 bg-gradient-to-br from-gray-50 to-white">
+          <div className="-mt-4 p-10 bg-gradient-to-br from-gray-50 to-white">
             <div className="text-center">
               <div className="inline-block relative">
                 {/* Hilangkan efek blur & glow */}
@@ -334,7 +334,7 @@ const PageView = () => {
 
                 <div className="relative bg-white px-0 py-12 rounded-2xl ">
                   <span
-                    className={`text-8xl font-black bg-gradient-to-r ${bgGradient} bg-clip-text text-transparent transition-all duration-500 ${
+                    className={` text-8xl font-black bg-gradient-to-r ${bgGradient} bg-clip-text text-transparent transition-all duration-500 ${
                       isActive ? "animate-pulse" : ""
                     }`}
                   >
@@ -376,7 +376,7 @@ const PageView = () => {
 
       <Footer />
 
-      <style jsx>{`
+      <style>{`
         @keyframes fade-in {
           from {
             opacity: 0;
