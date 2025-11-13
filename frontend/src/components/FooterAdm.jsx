@@ -12,9 +12,9 @@ const quotes = [
 
 const Footer = () => {
   return (
-    <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] w-full h-20 flex items-center text-white py-8 overflow-hidden fixed bottom-0 shadow-2xl relative">
-      {/* Background Glow */}
-      <div className="absolute inset-0 opacity-10">
+    <footer className="relative w-full h-20 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] flex items-center text-white overflow-hidden shadow-2xl ">
+      {/* ✨ Background Glow */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-0 left-0 w-32 h-32 bg-white/20 rounded-full blur-xl animate-pulse"></div>
         <div className="absolute top-2 right-24 w-24 h-24 bg-white/10 rounded-full blur-lg animate-ping"></div>
         <div
@@ -23,7 +23,7 @@ const Footer = () => {
         ></div>
       </div>
 
-      {/* Scrolling Quotes */}
+      {/* 💬 Scrolling Quotes */}
       <div className="relative z-10 w-full overflow-hidden">
         <div className="marquee whitespace-nowrap flex items-center">
           {quotes.map((quote, index) => (
@@ -38,7 +38,7 @@ const Footer = () => {
           {quotes.map((quote, index) => (
             <span
               key={`copy-${index}`}
-              className="mx-24 inline-block text-lg font-semibold drop-shadow-md"
+              className="mx-[400px] inline-block text-lg font-semibold drop-shadow-md"
             >
               {quote}
             </span>
@@ -57,7 +57,7 @@ const Footer = () => {
           animation: marquee 60s linear infinite;
         }
       `}</style>
-    </div>
+    </footer>
   );
 };
 

@@ -32,22 +32,18 @@ const Footer = () => {
           </span>
         </div>
       </div>
+<style>{`
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee {
+    display: flex;
+    width: 200%;
+    animation: marquee 60s linear infinite;
+  }
+`}</style>
 
-      <style>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(100%);
-          }
-          100% {
-            transform: translateX(-100%);
-          }
-        }
-        .marquee {
-          display: flex;
-          width: 200%; /* bikin ruang jalan */
-          animation: marquee 290s linear infinite;
-        }
-      `}</style>
     </footer>
   );
 };

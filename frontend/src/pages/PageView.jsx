@@ -332,7 +332,7 @@ const PageView = () => {
                   }`}
                 ></div>
 
-                <div className="relative bg-white px-8 py-6 rounded-2xl ">
+                <div className="relative bg-white px-0 py-12 rounded-2xl ">
                   <span
                     className={`text-8xl font-black bg-gradient-to-r ${bgGradient} bg-clip-text text-transparent transition-all duration-500 ${
                       isActive ? "animate-pulse" : ""
@@ -355,7 +355,7 @@ const PageView = () => {
 
       <main className="flex-grow flex flex-col items-center justify-center py-12 px-4">
         {/* Queue cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 -ml-24 gap-48 max-w-7xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 -ml-32 gap-48 max-w-7xl w-full">
           {[
             { label: "Obat Non Racikan", color: "blue", prefix: "A", key: "bpjs/obat-jadi" },
             { label: "Obat Racikan", color: "blue", prefix: "B", key: "bpjs/obat-racikan" },

@@ -14,7 +14,6 @@ const PageCall = () => {
   const [racikanData, setRacikanData] = useState(null);
   const [jadiData, setJadiData] = useState(null);
   const [lastQueueNumber, setLastQueueNumber] = useState({});
-
   const [disabledButtons, setDisabledButtons] = useState({
     loket1: false,
     loket2: false,
@@ -23,9 +22,7 @@ const PageCall = () => {
 
   const fetchQueueData = useCallback(async (type) => {
     try {
-      const response = await axios.get(
-        `http://${localAccess}/api/antrian/${type}/0`
-      );
+      const response = await axios.get(`http://${localAccess}/api/antrian/${type}/0`);
       const queueList = response.data;
 
       if (queueList.length > 0) {
@@ -33,17 +30,12 @@ const PageCall = () => {
           new Date(current.waktu) < new Date(oldest.waktu) ? current : oldest
         );
 
-        const maxQueueNumber = Math.max(
-          ...queueList.map((q) => parseInt(q.no_antrian, 10))
-        );
+        const maxQueueNumber = Math.max(...queueList.map((q) => parseInt(q.no_antrian, 10)));
 
-        setLastQueueNumber((prevState) => ({
-          ...prevState,
-          [type]: maxQueueNumber,
-        }));
+        setLastQueueNumber((prev) => ({ ...prev, [type]: maxQueueNumber }));
         return oldestQueue;
       } else {
-        setLastQueueNumber((prevState) => ({ ...prevState, [type]: 0 }));
+        setLastQueueNumber((prev) => ({ ...prev, [type]: 0 }));
         return null;
       }
     } catch (error) {
@@ -72,9 +64,7 @@ const PageCall = () => {
 
   const updateQueueStatus = async (id, type) => {
     try {
-      await axios.patch(
-        `http://${localAccess}/api/antrian/${type}/${id}/status`
-      );
+      await axios.patch(`http://${localAccess}/api/antrian/${type}/${id}/status`);
       const updatedData = await fetchQueueData(type);
 
       switch (type) {
@@ -123,7 +113,6 @@ const PageCall = () => {
         timer: 2000,
       });
     });
-
     disableButtonsTemporarily();
   };
 
@@ -152,7 +141,6 @@ const PageCall = () => {
         icon: "info",
         confirmButtonText: "OK",
       });
-
       setBpjsRacikanData(await fetchQueueData("bpjs/obat-racikan"));
       setBpjsJadiData(await fetchQueueData("bpjs/obat-jadi"));
       setRacikanData(await fetchQueueData("obat-racikan"));
@@ -165,119 +153,96 @@ const PageCall = () => {
     };
   }, [fetchQueueData]);
 
-  return (
-    <>
-      <Navbar />
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
-      <div className="md:mt-22 mt-24 mb-28 px-12 py-4 flex flex-wrap gap-6 w-full justify-center items-cente">
-        {[
-          {
-            label: "Obat Non Racikan",
-            data: bpjsJadiData,
-            section: "A",
-            loket: [1, 2],
-            category: "bpjs/obat-jadi",
-            type: "non-racikan",
-            color: "bg-biru1",
-          },
-          {
-            label: "Obat Racikan",
-            data: bpjsRacikanData,
-            section: "B",
-            loket: [1, 2],
-            category: "bpjs/obat-racikan",
-            type: "racikan",
-            color: "bg-biru1",
-          },
-          {
-            label: "Obat Non Racikan",
-            data: jadiData,
-            section: "C",
-            loket: [1, 2],
-            category: "obat-jadi",
-            type: "non-racikan",
-            color: "bg-hijau1",
-          },
-          {
-            label: "Obat Racikan",
-            data: racikanData,
-            section: "D",
-            loket: [1, 2],
-            category: "obat-racikan",
-            type: "racikan",
-            color: "bg-hijau1",
-          },
-        ].map(
-          ({ label, data, section, category, type, color }, index) => (
-            <div
-              key={index}
-              className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}>
-              <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
-              <p className="text-6xl text-white w-full py-4 items-center justify-center">
-                {section} {data ? ` ${data.no_antrian}` : "0"}
-              </p>
-              <div className="flex flex-col space-y-2 p-4 mb-2 text-black text-sm">
-                <button
-                  onClick={() =>
-                    showNotification(data, section, 1, category, type)
-                  }
-                  disabled={disabledButtons.loket1}
-                  className={`hover:bg-red-500 hover:text-white bg-white p-2 rounded-md ${
-                    disabledButtons.loket1
-                      ? "cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}>
-                  Panggil Loket 1
-                </button>
-                <button
-                  onClick={() =>
-                    showNotification(data, section, 2, category, type)
-                  }
-                  disabled={disabledButtons.loket2}
-                  className={`hover:bg-red-500 hover:text-white bg-white p-2 rounded-md ${
-                    disabledButtons.loket2
-                      ? "cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}>
-                  Panggil Loket 2
-                </button>
-                {data && (
-                  <button
-                    onClick={() => {
-                      const maxNumber = lastQueueNumber?.[category] || 0;
-                      const currentNumber = parseInt(data?.no_antrian, 10);
+  const Card = ({ label, data, section, category, type, color }) => {
+    const gradient =
+      color === "blue"
+        ? "from-blue-500 via-blue-600 to-blue-700"
+        : "from-emerald-500 via-emerald-600 to-emerald-700";
 
-                      if (currentNumber >= maxNumber) {
-                        Swal.fire({
-                          title: "Antrian Sudah Habis!",
-                          text: "Tidak ada antrian berikutnya.",
-                          icon: "warning",
-                          confirmButtonText: "OK",
-                        });
-                        return;
-                      }
-                      updateQueueStatus(data.id_antrian, category);
-                      disableButtonsTemporarily();
-                      updateCallQueue(data, section);
-                    }}
-                    disabled={!data?.no_antrian}
-                    className={`bg-red-500 p-2 text-white rounded-md ${
-                      !data?.no_antrian
-                        ? "cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}>
-                    Antrian Berikutnya
-                  </button>
-                )}
-              </div>
-            </div>
-          )
-        )}
+    return (
+      <div
+        className={`relative bg-white rounded-3xl shadow-xl overflow-hidden w-[320px] transition-all duration-500 hover:scale-105`}
+      >
+        <div
+          className={`bg-gradient-to-r ${gradient} p-5 relative text-center text-white text-2xl font-bold`}
+        >
+          {label}
+        </div>
+
+        <div className="p-8 flex flex-col items-center">
+          <div
+            className={`text-8xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-6`}
+          >
+            {section} {data ? data.no_antrian : "0"}
+          </div>
+
+          {[1, 2].map((loket) => (
+            <button
+              key={loket}
+              onClick={() => showNotification(data, section, loket, category, type)}
+              disabled={disabledButtons[`loket${loket}`]}
+              className={`w-full py-3 mb-3 rounded-xl text-lg font-semibold transition-all ${
+                disabledButtons[`loket${loket}`]
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-gray-100 border-2 border-transparent hover:border-red-500 hover:bg-red-500 hover:text-white shadow-md"
+              }`}
+            >
+              Panggil Loket {loket}
+            </button>
+          ))}
+
+          {data && (
+            <button
+              onClick={() => {
+                const maxNumber = lastQueueNumber?.[category] || 0;
+                const currentNumber = parseInt(data?.no_antrian, 10);
+
+                if (currentNumber >= maxNumber) {
+                  Swal.fire({
+                    title: "Antrian Sudah Habis!",
+                    text: "Tidak ada antrian berikutnya.",
+                    icon: "warning",
+                    confirmButtonText: "OK",
+                  });
+                  return;
+                }
+                updateQueueStatus(data.id_antrian, category);
+                disableButtonsTemporarily();
+                updateCallQueue(data, section);
+              }}
+              className="w-full py-3 mt-1 rounded-xl text-white font-semibold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-md"
+            >
+              Antrian Berikutnya
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-      <Footer />
-    </>
-  );
+    );
+  };
+
+return (
+  <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100">
+    <Navbar />
+
+    {/* Bagian utama grow otomatis isi layar */}
+    <main className="flex-grow flex flex-col items-center justify-center py-16 -ml-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-32 max-w-7xl w-full justify-center">
+        {[
+          { label: "Obat Non Racikan", data: bpjsJadiData, section: "A", category: "bpjs/obat-jadi", type: "non-racikan", color: "blue" },
+          { label: "Obat Racikan", data: bpjsRacikanData, section: "B", category: "bpjs/obat-racikan", type: "racikan", color: "blue" },
+          { label: "Obat Non Racikan", data: jadiData, section: "C", category: "obat-jadi", type: "non-racikan", color: "green" },
+          { label: "Obat Racikan", data: racikanData, section: "D", category: "obat-racikan", type: "racikan", color: "green" },
+        ].map((props, i) => (
+          <Card key={i} {...props} />
+        ))}
+      </div>
+    </main>
+
+    {/* 🧷 Footer otomatis nempel di bawah */}
+    <Footer />
+  </div>
+);
+
 };
 
 export default PageCall;

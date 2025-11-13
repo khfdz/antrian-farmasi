@@ -55,7 +55,7 @@ const Navbar = () => {
 
             <div>
               <h1 className="text-xl font-black text-white leading-tight tracking-wide drop-shadow-lg">
-                ANTRIAN POLIKLINIK
+                ANTRIAN FARMASI
               </h1>
               <div className="text-lg font-bold text-white leading-tight">
                 RS PERMATA KELUARGA KARAWANG

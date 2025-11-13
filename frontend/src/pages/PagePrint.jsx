@@ -227,80 +227,89 @@ const PagePrint = () => {
     }
   };
 
-  return (
-    <>
+return (
+  <>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100">
+      
+      {/* NAVBAR */}
       <Navbar />
-    <div className="bg-gray-200 w-screen min-h-screen flex flex-col items-center justify-center">
-  
-      <div className="md:mt-22 mt-28 mb-28 px-12 py-4 flex flex-wrap gap-12 w-full justify-center items-center">
-        {[
-          {
-            label: "Obat Non Racikan",
-            color: "bg-biru1",
-            prefix: "A",
-            jenis: "bpjs/obat-jadi",
-            sectionTitle: "Obat Non Racikan",
-          },
-          {
-            label: "Obat Racikan",
-            color: "bg-biru1",
-            prefix: "B",
-            jenis: "bpjs/obat-racikan",
-            sectionTitle: "Obat Racikan",
-          },
-          {
-            label: "Obat Non Racikan",
-            color: "bg-hijau1",
-            prefix: "C",
-            jenis: "obat-jadi",
-            sectionTitle: "Obat Non Racikan",
-          },
-          {
-            label: "Obat Racikan",
-            color: "bg-hijau1",
-            prefix: "D",
-            jenis: "obat-racikan",
-            sectionTitle: "Obat Racikan",
-          },
-        ].map(({ label, color, prefix, jenis, sectionTitle }, index) => (
-          <div
-            key={index}
-            className={`${color} w-[250px] h-full text-center rounded-md shadow-xl`}
-          >
-            <h2 className="bg-white p-2 text-2xl rounded-t-md">{label}</h2>
-            <p className="text-6xl text-white w-full py-12 items-center justify-center">
-              {prefix}{" "}
-              {
-                latestBpjsJadi ||
-                latestBpjsRacikan ||
-                latestJadi ||
-                latestRacikan
-                  ? prefix === "A"
-                    ? latestBpjsJadi
-                    : prefix === "B"
-                    ? latestBpjsRacikan
-                    : prefix === "C"
-                    ? latestJadi
-                    : prefix === "D"
-                    ? latestRacikan
-                    : "0"
-                  : "0"
-              }
-            </p>
-            <button
-              onClick={() => handleButtonClick(jenis, sectionTitle, prefix)}
-              className="hover:bg-red-500 hover:text-white p-2 mb-6 bg-white rounded-md text-xl"
+
+      {/* MAIN CONTENT */}
+      <main className="flex-grow flex flex-col items-center justify-center py-10">
+        
+        <div className="-ml-[120px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-44 max-w-7xl w-full justify-center">
+          
+          {[
+            {
+              label: "Obat Non Racikan",
+              gradient: "from-blue-500 via-blue-600 to-blue-700",
+              prefix: "A",
+              jenis: "bpjs/obat-jadi",
+              number: latestBpjsJadi,
+              sectionTitle: "Obat Non Racikan",
+            },
+            {
+              label: "Obat Racikan",
+              gradient: "from-blue-500 via-blue-600 to-blue-700",
+              prefix: "B",
+              jenis: "bpjs/obat-racikan",
+              number: latestBpjsRacikan,
+              sectionTitle: "Obat Racikan",
+            },
+            {
+              label: "Obat Non Racikan",
+              gradient: "from-emerald-500 via-emerald-600 to-emerald-700",
+              prefix: "C",
+              jenis: "obat-jadi",
+              number: latestJadi,
+              sectionTitle: "Obat Non Racikan",
+            },
+            {
+              label: "Obat Racikan",
+              gradient: "from-emerald-500 via-emerald-600 to-emerald-700",
+              prefix: "D",
+              jenis: "obat-racikan",
+              number: latestRacikan,
+              sectionTitle: "Obat Racikan",
+            },
+          ].map(({ label, gradient, prefix, jenis, number, sectionTitle }, index) => (
+            
+            <div
+              key={index}
+              className="bg-white rounded-3xl shadow-xl overflow-hidden w-[320px] transition-all duration-500 hover:scale-105"
             >
-              Cetak Antrian
-            </button>
-          </div>
-        ))}
-      </div>
-  
-    </div>
+              <div
+                className={`bg-gradient-to-r ${gradient} p-5 text-center text-white text-2xl font-bold`}
+              >
+                {label}
+              </div>
+
+              <div className="p-8 flex flex-col items-center">
+                <div
+                  className={`text-8xl font-black bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-8`}
+                >
+                  {prefix} {number || 0}
+                </div>
+
+                <button
+                  onClick={() => handleButtonClick(jenis, sectionTitle, prefix)}
+                  className="w-full py-3 rounded-xl text-lg font-semibold bg-gray-100 hover:bg-red-500 hover:text-white transition-all shadow-md border-2 border-transparent hover:border-red-500"
+                >
+                  Cetak Antrian
+                </button>
+              </div>
+            </div>
+
+          ))}
+        </div>
+      </main>
+
+      {/* FOOTER */}
       <Footer />
-    </>
-  );
+
+    </div>
+  </>
+);
 };
 
 export default PagePrint;

@@ -1,3 +1,23 @@
+// const mysql = require("mysql2");
+// require("dotenv").config();
+
+// const db = mysql.createConnection({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASS,
+//   database: process.env.DB_NAME,
+//   multipleStatements: true,
+// });
+
+// db.connect((err) => {
+//   if (err) {
+//     console.error("❌ Database connection failed:", err);
+//     process.exit(1);
+//   }
+// });
+
+// module.exports = db;
+
 const mysql = require("mysql2");
 require("dotenv").config();
 
@@ -6,6 +26,7 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
+  port: process.env.DB_PORT,      // ✅ penting! biar connect ke 7210, bukan 3306
   multipleStatements: true,
 });
 
@@ -14,6 +35,7 @@ db.connect((err) => {
     console.error("❌ Database connection failed:", err);
     process.exit(1);
   }
+  console.log("✅ Connected to MySQL database:", process.env.DB_NAME);
 });
 
 module.exports = db;
